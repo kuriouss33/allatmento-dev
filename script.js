@@ -1640,17 +1640,18 @@ async function ujBejelentesKuldése() {
       const formData = new FormData();
       formData.append("image", fajl);
 
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
+      const response = await fetch(`${BACKEND_URL}/upload`, {
         method: "POST",
         body: formData
       });
 
       const result = await response.json();
-      if (result.success) {
-        fotoUrl = result.data.url;
+      if (result.success && result.url) {
+        fotoUrl = result.url;
+      } else {
+        throw new Error(result.error || "A kép feltöltése sikertelen.");
       }
     }
-
     // 2. Fordított geokódolás (település & megye kinyerése)
     let mentettMegye = "Ismeretlen";
     let mentettCim = "";
