@@ -1,0 +1,1184 @@
+/* ==========================================================================
+   1. GLOBÁLIS RESET ÉS VÁLTOZÓK
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --success: #10b981;
+  --success-hover: #059669;
+  --warning: #f59e0b;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-radius: 16px;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  margin: 0;
+  padding: 15px 10px;
+}
+
+/* LÉPÉSEK LÁTHATÓSÁGA */
+#stepMap, #stepSajat, #step1, #step2, #step3, #step4 {
+  display: none;
+}
+
+#step0 {
+  display: block;
+  align-self: center; /* Ez a varázsszó húzza függőlegesen középre a kártyát */
+  width: 100%;
+}
+
+/* FŐ KONTÉNER */
+.container {
+  background: var(--card-bg);
+  padding: 24px 16px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 450px !important;
+  min-width: 0;
+  margin: 0 auto;
+  position: relative !important;
+  text-align: center;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-header { margin-bottom: 20px; }
+.app-icon { font-size: 42px; display: block; margin-bottom: 8px; }
+h2 { margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: var(--text-main); }
+p { margin: 0 0 16px 0; font-size: 14px; color: var(--text-muted); }
+
+.step-badge {
+  display: inline-block;
+  background: #eff6ff;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* NÉZETVÁLTÓ GOMBOK */
+.view-toggle {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+  background: #ffffff;
+  color: var(--text-main);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+/* GOMBOK STÍLUSA */
+.btn {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-success { background: var(--success); color: white; }
+.btn-secondary { background: #334155; color: white; }
+.btn-sajat { background: #8b5cf6; color: white; }
+.btn-outline { background: #f1f5f9; color: #475569; }
+
+.menu-actions { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.nav-buttons { display: flex; gap: 10px; margin-top: 18px; width: 100%; }
+
+#eredmeny {
+  display: block;
+  width: 100%;
+  word-break: break-word;
+  white-space: normal;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  margin: 10px 0;
+}
+
+/* ÁLLAT KÁRTYA VÁLASZTÓ */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.karty, .type-card {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  padding: 16px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+}
+
+.card-icon { font-size: 28px; }
+.karty.kivalasztva, .type-card.selected {
+  border-color: var(--danger);
+  background: #fef2f2;
+  color: var(--danger);
+  transform: scale(1.02);
+}
+
+/* LISTA ÜGY KÁRTYÁK */
+.report-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.report-title { font-weight: 700; font-size: 15px; color: var(--text-main); }
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.status-badge.uj { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+.status-badge.folyamatban { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.status-badge.megoldva { background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0; }
+
+.report-body { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.report-body p { margin: 3px 0; }
+
+.report-action-btn {
+  width: 100%;
+  padding: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.btn-action-take { background: #f59e0b; color: white; }
+.btn-action-solve { background: var(--success); color: white; }
+
+/* TÉRKÉPEK (FIX PIXELES MAGASSÁG, HOGY SOHASE ESSEN SZÉT) */
+.map-box {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 10px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+#map { width: 100%; height: 0px; transition: height 0.3s ease; border-radius: 12px; }
+#map.mutasd { height: 220px; }
+
+/* ==========================================================================
+   BEJELENTÉSEK KÉPERNYŐ (stepMap) DINAMIKUS KITÖLTÉSE
+   ========================================================================== */
+/* Amikor a JS megnyitja ezt a képernyőt, felülbíráljuk a sima block-ot flex-re */
+#stepMap[style*="display: block"] {
+  display: flex !important;
+  flex-direction: column;
+  /* A teljes képernyőmagasság, kivonva a body 15px-es alsó-felső paddingját */
+  height: calc(100dvh - 30px); 
+}
+
+#stepMap .map-box {
+  flex: 1; /* Ez húzza szét a dobozt a maradék üres helyre */
+  display: flex;
+  flex-direction: column;
+}
+
+#mainMap {
+  width: 100%;
+  height: 100% !important; /* Most már kitölti a flexibils map-boxot */
+  min-height: 200px;
+  border-radius: 12px;
+}
+
+/* A lista nézetnek is ugyanígy ki kell töltenie a helyet, ha az van megnyitva */
+#stepMap #bejelentesekLista {
+  flex: 1;
+  overflow-y: auto; /* Ha sok a bejelentés, a kártyán belül görgethető marad */
+  padding-right: 4px;
+}
+
+/* ==========================================================================
+   LISTA NÉZET (bejelentesekLista) DINAMIKUS MAGASSÁGA
+   ========================================================================== */
+#stepMap #bejelentesekLista {
+  flex: 1; /* Kitölti a térkép helyén maradó teljes űrt */
+  max-height: none !important; /* Eltávolítjuk a korábbi 60vh-s korlátot */
+  overflow-y: auto; /* Ha sok az elem, a dobozon belül görgethető marad */
+  min-height: 0; /* Flexbox trükk: ez akadályozza meg, hogy a tartalom kilógjon a képernyőről */
+  padding-right: 4px;
+}
+
+/* KÉPFELTÖLTÉS ÉS ELŐNÉZET */
+input[type="file"] { display: none; }
+
+.custom-file-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f1f5f9;
+  border: 2px dashed #cbd5e1;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+}
+
+.custom-file-upload.uploaded { background: #ecfdf5; border-color: #10b981; color: #047857; }
+
+#imagePreviewBox {
+  display: none;
+  margin-top: 15px;
+  text-align: center;
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+}
+
+/* FIX MAGASSÁGÚ KÉPELŐNÉZET ÉS THUMBNAIL-EK */
+#previewImage {
+  width: 100%;
+  max-height: 180px !important;
+  object-fit: cover !important;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto 10px auto;
+}
+
+.popup-img {
+  width: 100%;
+  height: 160px !important;
+  max-height: 160px !important;
+  object-fit: cover !important;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+#removePhotoBtn {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* BEVITELI MEZŐK & SELECT */
+textarea, input[type="tel"], .custom-select, input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+textarea { resize: vertical; min-height: 150px; }
+
+/* INFORMÁCIÓS KÁRTYÁK ÉS ÚTMUTATÓK */
+.info-card, .guide-card {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  text-align: left;
+  border-left: 5px solid var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.info-card.orvos { border-left-color: var(--danger); }
+.info-card.hatosag { border-left-color: #f59e0b; }
+.info-card.vad { border-left-color: #3b82f6; }
+
+.info-card h3, .guide-header h3 { margin: 0 0 4px 0; font-size: 15px; color: var(--text-main); font-weight: 700; }
+.info-card p, .guide-body p { margin: 4px 0; font-size: 13px; color: var(--text-muted); }
+
+.call-btn {
+  display: inline-block;
+  background-color: var(--success);
+  color: white;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  justify-content: center; align-items: center;
+  flex-direction: column;
+}
+
+.modal-content-wrapper { position: relative; width: 85vw; height: 75vh; }
+#modalImage { width: 100%; height: 100%; object-fit: contain; }
+
+.close-modal-btn {
+  position: absolute; top: 20px; left: 20px;
+  background: #ef4444; color: white; border: none;
+  padding: 10px 16px; border-radius: 8px; font-weight: bold;
+}
+
+.modal-hint { color: #94a3b8; font-size: 12px; margin-top: 15px; }
+
+/* BELSŐ LISTÁK GÖRGETHETŐSÉGE */
+#szervezetekLista, #bejelentesekLista, #sajatUgyekLista, #utmutatoSzakasz {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* BEJELENTÉS TÖRLÉSE GOMB */
+.btn-delete {
+  border: 1px dashed #ef4444 !important;
+  color: #ef4444 !important;
+  background-color: transparent !important;
+}
+
+/* FŐMENÜ GOMBOK */
+#step0 .menu-actions .btn {
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+  min-height: 100px !important;
+  font-size: 20px !important;
+  line-height: 1.3 !important;
+}
+
+/* FEJLÉC GOMBOK POZÍCIÓJA */
+.theme-toggle-btn {
+  position: absolute !important;
+  top: 16px !important; right: 16px !important; left: auto !important;
+  background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 20px !important;
+  padding: 6px 12px; font-size: 14px; cursor: pointer; z-index: 20 !important; color: #0f172a;
+}
+
+.lang-toggle-btn {
+  position: absolute !important;
+  top: 16px !important; left: 16px !important; right: auto !important;
+  background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 20px !important;
+  padding: 6px 12px; font-size: 13px; font-weight: 700; cursor: pointer; z-index: 20 !important; color: #0f172a;
+}
+
+/* ==========================================================================
+   2. TELJES SÖTÉT MÓD (DARK MODE) OVERRIDE
+   ========================================================================== */
+[data-theme="dark"] body { background-color: #0f172a !important; color: #f8fafc !important; }
+
+[data-theme="dark"] .container,
+[data-theme="dark"] .report-card,
+[data-theme="dark"] .info-card,
+[data-theme="dark"] .guide-card,
+[data-theme="dark"] #imagePreviewBox {
+  background-color: #1e293b !important; color: #f8fafc !important; border-color: #334155 !important;
+}
+
+[data-theme="dark"] p, [data-theme="dark"] span, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] label, [data-theme="dark"] .report-title, [data-theme="dark"] .guide-header h3, [data-theme="dark"] .guide-body b {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .step-desc, [data-theme="dark"] .modal-hint, [data-theme="dark"] .guide-body p { color: #94a3b8 !important; }
+
+[data-theme="dark"] .karty, [data-theme="dark"] .type-card, [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea, [data-theme="dark"] .custom-file-upload {
+  background-color: #334155 !important; color: #ffffff !important; border-color: #475569 !important;
+}
+
+[data-theme="dark"] .btn-outline { background-color: #334155 !important; color: #f8fafc !important; border-color: #475569 !important; }
+[data-theme="dark"] .view-toggle { background-color: #0f172a !important; }
+[data-theme="dark"] .toggle-btn.active { background-color: #334155 !important; color: #ffffff !important; }
+[data-theme="dark"] .lang-toggle-btn, [data-theme="dark"] .theme-toggle-btn { background-color: #1e293b !important; border-color: #475569 !important; color: #ffffff !important; }
+[data-theme="dark"] a[href*="google.com/maps"] { color: #38bdf8 !important; }
+[data-theme="dark"] .leaflet-control-zoom a { background-color: #1e293b !important; color: #f8fafc !important; border-color: #475569 !important; }
+
+/* ==========================================================================
+   SAJÁT ÜGYEIM (stepSajat) DINAMIKUS MAGASSÁGA
+   ========================================================================== */
+/* Képernyő rugalmas, teljes magasságú kitöltése */
+#stepSajat[style*="display: block"] {
+  display: flex !important;
+  flex-direction: column;
+  height: calc(100dvh - 30px); 
+}
+
+/* A belső lista nyújtsa ki magát, de maradjon görgethető */
+#stepSajat #sajatUgyekLista {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* Megakadályozza, hogy a tartalom szétfeszítse a képernyőt */
+  max-height: none !important; /* Felülírjuk a régi fix korlátot */
+  margin-top: 10px;
+  margin-bottom: auto; /* Távolság a vissza gombtól */
+  padding-right: 4px;
+}
+
+/* A Vissza gombot mindenképpen a kártya aljára toljuk (még akkor is, ha üres a lista) */
+#stepSajat .backToMenuBtn {
+  margin-top: 15px !important;
+  margin-bottom: 0 !important;
+}
+
+/* ==========================================================================
+   1. LÉPÉS (step1 - Állatfajta) FÜGGŐLEGES KÖZÉPRE ZÁRÁSA
+   ========================================================================== */
+#step1[style*="display: block"] {
+  align-self: center !important;
+  margin: auto 0 !important; /* Biztosítja, hogy alul-felül egyenlő üres tér maradjon */
+}
+
+/* ==========================================================================
+   1. LÉPÉS (step1) KÁRTYÁK TÖKÉLETES NÉGYZETESÍTÉSE
+   ========================================================================== */
+.karty, .type-card {
+  aspect-ratio: 1 / 1 !important; /* Automatikusan 1:1 arányt képez a szélességből */
+  justify-content: center !important; /* Függőlegesen is pontosan középre tolja az ikont és a szöveget */
+}
+
+/* ==========================================================================
+   2. LÉPÉS (step2 - Helyszín & Fotó) FÜGGŐLEGES KÖZÉPRE ZÁRÁSA
+   ========================================================================== */
+#step2[style*="display: block"] {
+  align-self: center !important;
+  margin: auto 0 !important; /* Biztosítja, hogy alul-felül egyenlő üres tér maradjon */
+}
+
+/* ==========================================================================
+   2. LÉPÉS (step2) KÖZÉPRE ZÁRÁS ÉS TÉRKÉP DINAMIKUS MAGASSÁG
+   ========================================================================== */
+/* 1. Alapból marad a tökéletes függőleges középre igazítás, de bekapcsoljuk a Flexboxot */
+#step2[style*="display: block"] {
+  display: flex !important;
+  flex-direction: column;
+  align-self: center !important;
+  margin: auto 0 !important;
+}
+
+/* 2. Amikor a térkép aktív (.mutasd), a kártya kinyúlik a képernyő széléig */
+#step2:has(#map.mutasd) {
+  height: calc(100dvh - 30px) !important;
+}
+
+/* 3. A navigációs gombokat mindenképpen a kártya aljára toljuk */
+#step2 .nav-buttons {
+  margin-top: auto !important;
+  padding-top: 10px;
+}
+
+/* 4. A térkép kitölti a kártyán belüli felszabaduló űrt */
+#step2 #map.mutasd {
+  flex: 1;
+  height: auto !important; /* Felülírja az eredeti fix 220px-et */
+  min-height: 180px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* ==========================================================================
+   3. LÉPÉS (step3 - Részletek & Küldés) FÜGGŐLEGES KÖZÉPRE ZÁRÁSA
+   ========================================================================== */
+#step3[style*="display: block"] {
+  display: flex !important;
+  flex-direction: column;
+  align-self: center !important;
+  margin: auto 0 !important; /* Szimmetrikus tér alul-felül */
+}
+
+/* Egy kis extra tér a beviteli mezők és a küldés gomb között */
+#step3 .nav-buttons {
+  margin-top: 20px !important;
+}
+
+/* ==========================================================================
+   4. LÉPÉS (step4 - Szervezetek szakasz) DINAMIKUS MAGASSÁGA
+   ========================================================================== */
+#step4[style*="display: block"] {
+  display: flex !important;
+  flex-direction: column;
+  height: calc(100dvh - 30px) !important;
+  margin: 0 auto !important;
+}
+
+/* A szervezetek lista rugalmasan kitölti a teret és görgethető lesz */
+#step4 #szervezetekSzakasz {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#step4 #szervezetekLista {
+  flex: 1;
+  max-height: none !important;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 4px;
+}
+
+/* A "Vissza a főmenübe" gomb fixen alul marad */
+#step4 .backToMenuBtn {
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+}
+
+/* ==========================================================================
+   4. LÉPÉS (step4 - Elsősegély kisokos / utmutatoSzakasz) DINAMIKUS MAGASSÁGA
+   ========================================================================== */
+#step4 #utmutatoSzakasz {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: none !important;
+  overflow-y: auto; /* Ha túl hosszú a kisokos, egészében görgethető a többi szakaszhoz hasonlóan */
+  padding-right: 4px;
+  text-align: left;
+}
+
+/* ==========================================================================
+   RÉSZLETEK & KOMMENTEK KÉPERNYŐ (stepReszletek)
+   ========================================================================== */
+#stepReszletek[style*="display: block"] {
+  display: flex !important;
+  flex-direction: column;
+  height: calc(100dvh - 30px) !important;
+  margin: 0 auto !important;
+}
+
+#stepReszletek .step-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Komment buborékok megjelenése */
+.komment-buborek {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.komment-buborek.sajat {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  text-align: right;
+}
+.komment-buborek-idopont {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   TÉRKÉP POPUP ABLAK (LEAFLET) STÍLUS ÉS SZÉLESSÉG JAVÍTÁS
+   ========================================================================== */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-content {
+  width: 240px !important; /* Fix, kényelmes szélesség, hogy a gombok ne törjenek össze */
+  margin: 12px 14px !important;
+  line-height: 1.4 !important;
+  font-family: inherit !important;
+}
+
+/* A popupon belüli képek méretezése */
+.leaflet-popup-content img.popup-img {
+  width: 100% !important;
+  max-height: 140px !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+  margin: 6px 0 !important;
+}
+
+/* A gombok igazítása a popup belsejében */
+.leaflet-popup-content .status-action-box {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  margin-top: 8px !important;
+}
+
+.leaflet-popup-content .report-action-btn {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  white-space: normal !important; /* Ha hosszú a gomb felirata, szépen több sorba törhet */
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+}
+
+/* ==========================================================================
+   DARK MODE - LEAFLET POPUP ÉS JELVÉNYEK STÍLUS JAVÍTÁS
+   ========================================================================== */
+[data-theme="dark"] .leaflet-popup-content-wrapper,
+[data-theme="dark"] .leaflet-popup-tip {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Szövegek olvashatósága a sötét popupban */
+[data-theme="dark"] .leaflet-popup-content strong {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .leaflet-popup-content span {
+  color: #94a3b8 !important;
+}
+
+/* Bezáró (X) gomb színe */
+[data-theme="dark"] .leaflet-popup-close-button {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .leaflet-popup-close-button:hover {
+  color: #f8fafc !important;
+}
+
+/* Státusz jelvények (Badge-ek) láthatósága sötét módban */
+[data-theme="dark"] .status-badge.uj {
+  background-color: #450a0a !important;
+  color: #fca5a5 !important;
+  border-color: #7f1d1d !important;
+}
+
+[data-theme="dark"] .status-badge.folyamatban {
+  background-color: #451a03 !important;
+  color: #fcd34d !important;
+  border-color: #78350f !important;
+}
+
+[data-theme="dark"] .status-badge.megoldva {
+  background-color: #064e3b !important;
+  color: #6ee7b7 !important;
+  border-color: #065f46 !important;
+}
+
+/* ==========================================================================
+   STEP RÉSZLETEK ÉS CHAT ABLAK STÍLUS ÉS DARK MODE JAVÍTÁSOK
+   ========================================================================== */
+
+/* A felső információs doboz alapstílusa */
+.reszlet-info-box {
+  font-size: 13px;
+  color: var(--text-main);
+  background: #f1f5f9;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+/* Chat konténer lekerekítés és görgetősáv rögzítés */
+#reszletKommentekLista {
+  box-sizing: border-box !important;
+  border-radius: 12px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Chat buborékok alapértelmezett beállítása */
+.komment-buborek {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+.komment-buborek.sajat {
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-color: #bfdbfe;
+}
+
+/* --- DARK MODE OVERRIDES A RÉSZLETEK KÉPERNYŐHÖZ --- */
+
+/* Információs doboz sötét módban */
+[data-theme="dark"] .reszlet-info-box {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .reszlet-info-box b,
+[data-theme="dark"] .reszlet-info-box p {
+  color: #f8fafc !important;
+}
+
+/* Badge (jelvény) sötét módban */
+[data-theme="dark"] #reszletBadge {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #334155 !important;
+}
+
+/* Chat konténer sötét módban */
+[data-theme="dark"] #reszletKommentekLista {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* Chat buborékok sötét módban */
+[data-theme="dark"] .komment-buborek {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .komment-buborek.sajat {
+  background-color: #1e3a8a !important;
+  color: #f0f9ff !important;
+  border-color: #2563eb !important;
+}
+
+[data-theme="dark"] .komment-buborek div {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .komment-buborek-idopont {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   STEP 1 (ÁLLATFAJTA) KATTINTHATÓSÁG ÉS BADGE FIX
+   ========================================================================== */
+
+/* 1. Kártyán belüli elemek ne nyeljék el a kattintást mobilon/érintőkijelzőn */
+.karty *, .type-card * {
+  pointer-events: none !important;
+}
+
+/* 2. Lépésjelvény (Badge) javítása sötét módban */
+[data-theme="dark"] .step-badge {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #334155 !important;
+}
+
+/* 3. Kijelölt kártya kiemelése sötét módban */
+[data-theme="dark"] .karty.kivalasztva,
+[data-theme="dark"] .type-card.selected {
+  border-color: #ef4444 !important;
+  background-color: #450a0a !important;
+  color: #fca5a5 !important;
+}
+
+/* ==========================================================================
+   SIKERES BEKÜLDÉS ÉS MEGOSZTÁS DOBOZ STÍLUS & DARK MODE FIX
+   ========================================================================== */
+
+/* Alapértelmezett (Világos mód) stílus */
+.success-share-box {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 15px;
+  text-align: left;
+}
+
+.success-share-box .share-box-title {
+  font-weight: bold;
+  font-size: 14px;
+  margin: 0 0 6px 0;
+  color: #1e293b;
+}
+
+.success-share-box .share-box-desc {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+}
+
+/* Sötét mód (Dark Mode) stílus */
+[data-theme="dark"] .success-share-box {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .success-share-box .share-box-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .success-share-box .share-box-desc {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   CHAT SZEREPKÖRÖK ÉS SZÍNEZÉS (BEJELENTŐ / MENTŐ / ÉRDEKLŐDŐ)
+   ========================================================================== */
+
+.komment-szerep-label {
+  font-weight: 700;
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+
+/* 1. Bejelentő buborék (Világoskék tónus) */
+.komment-buborek.bejelento {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  text-align: left;
+}
+.komment-buborek.bejelento .komment-szerep-label { color: #1d4ed8; }
+
+/* 2. Mentő buborék (Zöld tónus) */
+.komment-buborek.mento {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  text-align: left;
+}
+.komment-buborek.mento .komment-szerep-label { color: #047857; }
+
+/* 3. Érdeklődő / Külső felhasználo (Szürke tónus) */
+.komment-buborek.erdoklodo {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  text-align: left;
+}
+.komment-buborek.erdoklodo .komment-szerep-label { color: #64748b; }
+
+/* Saját üzenet jobbra igazítása */
+.komment-buborek.sajat {
+  text-align: right !important;
+  margin-left: auto;
+  max-width: 85%;
+}
+
+/* --- DARK MODE SZÍNEK A CHAT SZEREPKÖRÖKHÖZ --- */
+
+[data-theme="dark"] .komment-buborek.bejelento {
+  background-color: #1e3a8a !important;
+  border-color: #2563eb !important;
+}
+[data-theme="dark"] .komment-buborek.bejelento .komment-szerep-label { color: #93c5fd !important; }
+
+[data-theme="dark"] .komment-buborek.mento {
+  background-color: #064e3b !important;
+  border-color: #059669 !important;
+}
+[data-theme="dark"] .komment-buborek.mento .komment-szerep-label { color: #6ee7b7 !important; }
+
+[data-theme="dark"] .komment-buborek.erdoklodo {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+[data-theme="dark"] .komment-buborek.erdoklodo .komment-szerep-label { color: #cbd5e1 !important; }
+
+[data-theme="dark"] .komment-szoveg {
+  color: #f8fafc !important;
+}
+
+/* ==========================================================================
+   LEZÁRÓ DOBOZ ÉS GÖRGETŐSÁV (SCROLLBAR) DARK MODE FIX
+   ========================================================================== */
+
+/* 1. Lezáró doboz alapértelmezett (világos mód) stílusa */
+.resolve-input-box {
+  background: #f0fdf4;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+  margin-top: 6px;
+  text-align: left;
+}
+
+.resolve-input-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #166534;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.resolve-textarea {
+  width: 100%;
+  min-height: 60px;
+  font-size: 13px;
+  padding: 8px;
+  margin: 0 0 4px 0;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+
+/* 2. Lezáró doboz SÖTÉT MÓD override */
+[data-theme="dark"] .resolve-input-box {
+  background-color: #064e3b !important;
+  border-color: #059669 !important;
+}
+
+[data-theme="dark"] .resolve-input-label {
+  color: #6ee7b7 !important;
+}
+
+[data-theme="dark"] .resolve-textarea {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #047857 !important;
+}
+
+/* 3. EGYEDI CSODÁS GÖRGETŐSÁV (CUSTOM SCROLLBAR) */
+#bejelentesekLista, #sajatUgyekLista, #szervezetekLista, #utmutatoSzakasz, #reszletKommentekLista {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 transparent;
+}
+
+/* Webkit görgetősáv finomítások */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Görgetősáv sötét módban */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+[data-theme="dark"] #bejelentesekLista,
+[data-theme="dark"] #sajatUgyekLista,
+[data-theme="dark"] #szervezetekLista,
+[data-theme="dark"] #utmutatoSzakasz,
+[data-theme="dark"] #reszletKommentekLista {
+  scrollbar-color: #475569 transparent;
+}
+
+/* Zárolt chat tájékoztató sáv */
+.chat-disabled-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 5px;
+}
+
+[data-theme="dark"] .chat-disabled-hint {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+/* Fejléc gombok igazításának felülbírálása */
+.header-controls-left .theme-toggle-btn,
+.header-controls-left .lang-toggle-btn {
+  position: static !important;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.user-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Jobbra igazítás */
+  gap: 6px;              /* Távolság a badge és a gomb között */
+}
+
+.status-badge {
+  background-color: #d1f2d9;
+  color: #1b633e;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  background-color: #f1f3f5;
+  color: #333;
+  border: none;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* Jobb oldali keskeny, többsoros kerekített téglalapok */
+#userStatusBadge,
+.header-compact-btn {
+  max-width: 95px;
+  min-width: 78px;
+  padding: 5px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+#userStatusBadge {
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 700;
+}
+
+/* Biztosítjuk, hogy a JavaScript által elrejtett gombok tényleg rejtve maradjanak */
+#openAuthModalBtn[style*="display: none"],
+#logoutBtn[style*="display: none"],
+#userStatusBadge[style*="display: none"] {
+  display: none !important;
+}
+
+/* === DINAMIKUS STÁTUSZ KÁRTYA HÁTTÉRSZÍNEK === */
+
+/* 1. Új bejelentés (Halvány vörös) */
+.report-card.card-uj {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+}
+[data-theme="dark"] .report-card.card-uj {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* 2. Folyamatban lévő ügy (Halvány narancssárga/borostyán) */
+.report-card.card-folyamatban {
+  background: #fffbeb !important;
+  border: 1px solid #fde68a !important;
+}
+[data-theme="dark"] .report-card.card-folyamatban {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+/* 3. Megoldott ügy (Halvány zöld) */
+.report-card.card-megoldva {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+[data-theme="dark"] .report-card.card-megoldva {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
