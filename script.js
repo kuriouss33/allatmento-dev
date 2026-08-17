@@ -1847,13 +1847,49 @@ if (authForm) {
 
     try {
       if (isRegisterMode) {
-        await firebase.auth().createUserWithEmailAndPassword(email, password);
-        alert('Sikeres regisztráció! A fiókod aktiválásáig adminisztrátori jóváhagyás szükséges.');
+        // Regisztráció létrehozása
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        
+        // Verifikációs e-mail kiküldése
+        await userCredential.user.sendEmailVerification();
+        
+        // Kijelentkeztetés a megerősítésig
+        await firebase.auth().signOut();
+        
+        alert('Sikeres regisztráció! Küldtünk egy megerősítő linket az e-mail címedre. Kérlek, kattints rá a fiókod aktiválásához!');
+        authModal.style.display = 'none';
+        authForm.reset();
       } else {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
+        // Bejelentkezés
+        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+        
+        // Ellenőrizzük, hogy megerősítette-e az e-mail címét
+        if (!userCredential.user.emailVerified) {
+          authErrorBox.innerHTML = `
+            ⚠️ Az e-mail címed még nincs megerősítve!<br>
+            <button type="button" id="resendVerificationBtn" class="btn btn-outline" style="font-size:11px; padding:4px 8px; margin-top:6px; color:#2563eb; border-color:#93c5fd;">
+              Megerősítő e-mail újraküldése
+            </button>
+          `;
+          authErrorBox.style.display = 'block';
+
+          // Újraküldés gomb eseménykezelője
+          document.getElementById('resendVerificationBtn').addEventListener('click', async () => {
+            try {
+              await userCredential.user.sendEmailVerification();
+              alert('Az új megerősítő e-mailt elküldtük!');
+            } catch (err) {
+              alert('Hiba az újraküldéskor: ' + err.message);
+            }
+          });
+
+          await firebase.auth().signOut();
+          return;
+        }
+
+        authModal.style.display = 'none';
+        authForm.reset();
       }
-      authModal.style.display = 'none';
-      authForm.reset();
     } catch (err) {
       authErrorBox.textContent = err.message || 'Hiba történt a hitelesítés során.';
       authErrorBox.style.display = 'block';
@@ -1892,7 +1928,7 @@ if (logoutBtn) {
 
 // Felhasználó állapotfigyelője
 firebase.auth().onAuthStateChanged(async (user) => {
-  if (user) {
+  if (user && user.emailVerified) {
     try {
       const token = await user.getIdToken(true);
       const res = await fetch(`${BACKEND_URL}/me`, {
@@ -1915,7 +1951,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     currentUserProfile = null;
     updateAuthUI(null);
   }
-  if (typeof szurEsKirajzolBejelentesek === 'function') szurEsKirajzolBejelentesek();
+  if (typeof szurEsKirajzolBejelentesek === "function") szurEsKirajzolBejelentesek();
 });
 
 function updateAuthUI(user) {
