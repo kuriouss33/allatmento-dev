@@ -2029,32 +2029,39 @@ async function loadAdminUsers() {
     }
 
     adminUserList.innerHTML = '';
-    users.forEach(u => {
+users.forEach(u => {
       const uid = u.uid || u.id;
       const role = u.role || 'public';
       const userEmail = u.email || uid;
+      const isSelf = (user.uid === uid);
       
       let badgeHtml = '<span style="background: #f1f5f9; color: #64748b; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Jóváhagyásra vár</span>';
       if (role === 'verified_rescuer') {
         badgeHtml = '<span style="background: #dcfce7; color: #15803d; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Hitelesített Mentő</span>';
       } else if (role === 'super_admin') {
-        badgeHtml = '<span style="background: #fef3c7; color: #b45309; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Rendszer Admin</span>';
+        badgeHtml = '<span style="background: #fef3c7; color: #b45309; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">⚡ Rendszer Admin</span>';
       }
 
       let actionBtns = '';
+
+      // Szerepkör váltó gomb (csak nem-adminoknak)
       if (role !== 'super_admin') {
         if (role === 'verified_rescuer') {
-          actionBtns = `<button type="button" onclick="setRoleViaAdmin('${uid}', 'public')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #ef4444; border-color: #fca5a5;">Mentő jog megvonása</button>`;
+          actionBtns += `<button type="button" onclick="setRoleViaAdmin('${uid}', 'public')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #ef4444; border-color: #fca5a5;">Mentő jog megvonása</button>`;
         } else {
-          actionBtns = `<button type="button" onclick="setRoleViaAdmin('${uid}', 'verified_rescuer')" class="btn btn-success" style="padding: 6px 10px; font-size: 11px;">✅ Mentővé kinevezés</button>`;
+          actionBtns += `<button type="button" onclick="setRoleViaAdmin('${uid}', 'verified_rescuer')" class="btn btn-success" style="padding: 6px 10px; font-size: 11px;">✅ Mentővé kinevezés</button>`;
         }
+      }
 
-        // Törlés gomb (admin nem törölheti saját magát véletlenül)
+      // Törlés gomb minden más fiókhoz (beleértve a teszt fiókokat, kivéve önmagadat)
+      if (!isSelf) {
         actionBtns += `
           <button type="button" onclick="deleteUserViaAdmin('${uid}', '${escapeHtml(userEmail)}')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #dc2626; border-color: #fca5a5; margin-left: 8px;">
             🗑️ Fiók törlése
           </button>
         `;
+      } else {
+        actionBtns += `<span style="font-size: 11px; color: #94a3b8; font-style: italic;">(Jelenlegi saját fiók)</span>`;
       }
 
       adminUserList.innerHTML += `
