@@ -1996,11 +1996,11 @@ async function loadAdminUsers() {
       const uid = u.uid || u.id;
       const role = u.role || 'public';
       
-      let badgeHtml = '<span style="background: #f1f5f9; color: #64748b; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">⏳ Jóváhagyásra vár</span>';
+      let badgeHtml = '<span style="background: #f1f5f9; color: #64748b; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Jóváhagyásra vár</span>';
       if (role === 'verified_rescuer') {
-        badgeHtml = '<span style="background: #dcfce7; color: #15803d; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">🐾 Hitelesített Mentő</span>';
+        badgeHtml = '<span style="background: #dcfce7; color: #15803d; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Hitelesített Mentő</span>';
       } else if (role === 'super_admin') {
-        badgeHtml = '<span style="background: #fef3c7; color: #b45309; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">⚡ Rendszer Admin</span>';
+        badgeHtml = '<span style="background: #fef3c7; color: #b45309; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Rendszer Admin</span>';
       }
 
       let actionBtns = '';
