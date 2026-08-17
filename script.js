@@ -2001,7 +2001,7 @@ if (menuAdminBtn) {
 
 async function loadAdminUsers() {
   if (!adminUserList) return;
-  adminUserList.innerHTML = '<p style="color: #64748b; font-size: 13px;">⏳ Felhasználók betöltése...</p>';
+  adminUserList.innerHTML = '<p style="color: #64748b; font-size: 13px;">Felhasználók betöltése...</p>';
 
   const user = firebase.auth().currentUser;
   if (!user) {
@@ -2029,7 +2029,7 @@ async function loadAdminUsers() {
     }
 
     adminUserList.innerHTML = '';
-users.forEach(u => {
+    users.forEach(u => {
       const uid = u.uid || u.id;
       const role = u.role || 'public';
       const userEmail = u.email || uid;
@@ -2039,7 +2039,7 @@ users.forEach(u => {
       if (role === 'verified_rescuer') {
         badgeHtml = '<span style="background: #dcfce7; color: #15803d; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Hitelesített Mentő</span>';
       } else if (role === 'super_admin') {
-        badgeHtml = '<span style="background: #fef3c7; color: #b45309; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">⚡ Rendszer Admin</span>';
+        badgeHtml = '<span style="background: #fef3c7; color: #b45309; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Rendszer Admin</span>';
       }
 
       let actionBtns = '';
@@ -2049,15 +2049,15 @@ users.forEach(u => {
         if (role === 'verified_rescuer') {
           actionBtns += `<button type="button" onclick="setRoleViaAdmin('${uid}', 'public')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #ef4444; border-color: #fca5a5;">Mentő jog megvonása</button>`;
         } else {
-          actionBtns += `<button type="button" onclick="setRoleViaAdmin('${uid}', 'verified_rescuer')" class="btn btn-success" style="padding: 6px 10px; font-size: 11px;">✅ Mentővé kinevezés</button>`;
+          actionBtns += `<button type="button" onclick="setRoleViaAdmin('${uid}', 'verified_rescuer')" class="btn btn-success" style="padding: 6px 10px; font-size: 11px;">Mentővé kinevezés</button>`;
         }
       }
 
-      // Törlés gomb minden más fiókhoz (beleértve a teszt fiókokat, kivéve önmagadat)
+      // Törlés gomb minden más fiókhoz
       if (!isSelf) {
         actionBtns += `
           <button type="button" onclick="deleteUserViaAdmin('${uid}', '${escapeHtml(userEmail)}')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #dc2626; border-color: #fca5a5; margin-left: 8px;">
-            🗑️ Fiók törlése
+            Fiók törlése
           </button>
         `;
       } else {
@@ -2128,7 +2128,14 @@ window.deleteUserViaAdmin = async function(targetUid, userEmail) {
       }
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error(`A szerver nem megfelelő formátumban válaszolt (Státusz: ${res.status}). Lehet, hogy a backend még frissül.`);
+    }
+
     if (!res.ok || !data.success) {
       throw new Error(data.error || 'A felhasználó törlése sikertelen.');
     }
