@@ -1792,7 +1792,7 @@ async function ujBejelentesKuldése() {
 }
 
 // ================= HITELESÍTÉS & BACKEND ÖSSZEKÖTÉS =================
-const BACKEND_URL = 'http://localhost:3000/api';
+const BACKEND_URL = 'https://allatmento-backend.onrender.com/api';
 let isRegisterMode = false;
 let currentUserProfile = null;
 
