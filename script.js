@@ -2032,6 +2032,7 @@ async function loadAdminUsers() {
     users.forEach(u => {
       const uid = u.uid || u.id;
       const role = u.role || 'public';
+      const userEmail = u.email || uid;
       
       let badgeHtml = '<span style="background: #f1f5f9; color: #64748b; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Jóváhagyásra vár</span>';
       if (role === 'verified_rescuer') {
@@ -2047,16 +2048,23 @@ async function loadAdminUsers() {
         } else {
           actionBtns = `<button type="button" onclick="setRoleViaAdmin('${uid}', 'verified_rescuer')" class="btn btn-success" style="padding: 6px 10px; font-size: 11px;">✅ Mentővé kinevezés</button>`;
         }
+
+        // Törlés gomb (admin nem törölheti saját magát véletlenül)
+        actionBtns += `
+          <button type="button" onclick="deleteUserViaAdmin('${uid}', '${escapeHtml(userEmail)}')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #dc2626; border-color: #fca5a5; margin-left: 8px;">
+            🗑️ Fiók törlése
+          </button>
+        `;
       }
 
       adminUserList.innerHTML += `
         <div style="background: var(--bg-card, #ffffff); border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <b style="font-size: 13px;">${escapeHtml(u.email || uid)}</b>
+            <b style="font-size: 13px;">${escapeHtml(userEmail)}</b>
             ${badgeHtml}
           </div>
           <div style="font-size: 11px; color: #94a3b8;">UID: ${uid}</div>
-          <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+          <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 4px; flex-wrap: wrap; gap: 6px;">
             ${actionBtns}
           </div>
         </div>
@@ -2093,5 +2101,34 @@ window.setRoleViaAdmin = async function(targetUid, newRole) {
     loadAdminUsers();
   } catch (err) {
     alert('Hiba: ' + err.message);
+  }
+};
+
+// Felhasználó végleges törlése az admin felületről
+window.deleteUserViaAdmin = async function(targetUid, userEmail) {
+  const megerosites = confirm(`Biztosan véglegesen törölni szeretnéd a(z) ${userEmail || targetUid} fiókot a rendszerből?`);
+  if (!megerosites) return;
+
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  try {
+    const token = await user.getIdToken();
+    const res = await fetch(`${BACKEND_URL}/users/${targetUid}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'A felhasználó törlése sikertelen.');
+    }
+
+    alert('✅ Felhasználó sikeresen törölve a rendszerből!');
+    loadAdminUsers();
+  } catch (err) {
+    alert('Hiba a törlés során: ' + err.message);
   }
 };
