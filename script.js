@@ -1964,17 +1964,17 @@ function updateAuthUI(user) {
     userStatusBadge.style.display = 'flex';
 
     if (user.role === 'super_admin') {
-      userStatusBadge.innerHTML = '⚡ Rendszer<br>Admin';
+      userStatusBadge.innerHTML = 'Rendszer<br>Admin';
       userStatusBadge.style.background = '#fef3c7';
       userStatusBadge.style.color = '#b45309';
       if (menuAdminBtn) menuAdminBtn.style.display = 'block';
     } else if (user.role === 'verified_rescuer') {
-      userStatusBadge.innerHTML = '🐾 Ellenőrzött<br>Mentő';
+      userStatusBadge.innerHTML = 'Ellenőrzött<br>Mentő';
       userStatusBadge.style.background = '#dcfce7';
       userStatusBadge.style.color = '#15803d';
       if (menuAdminBtn) menuAdminBtn.style.display = 'none';
     } else {
-      userStatusBadge.innerHTML = '⏳ Jóváhagyásra<br>vár';
+      userStatusBadge.innerHTML = 'Jóváhagyásra<br>vár';
       userStatusBadge.style.background = '#f1f5f9';
       userStatusBadge.style.color = '#64748b';
       if (menuAdminBtn) menuAdminBtn.style.display = 'none';
@@ -2133,7 +2133,7 @@ window.deleteUserViaAdmin = async function(targetUid, userEmail) {
       throw new Error(data.error || 'A felhasználó törlése sikertelen.');
     }
 
-    alert('✅ Felhasználó sikeresen törölve a rendszerből!');
+    alert('Felhasználó sikeresen törölve a rendszerből!');
     loadAdminUsers();
   } catch (err) {
     alert('Hiba a törlés során: ' + err.message);
