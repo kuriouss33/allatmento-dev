@@ -1848,36 +1848,59 @@ if (authForm) {
 
     try {
       if (isRegisterMode) {
-        // Regisztráció létrehozása
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        
-        // Verifikációs e-mail kiküldése
-        await userCredential.user.sendEmailVerification();
-        
-        // Kijelentkeztetés a megerősítésig
+        // 1. Regisztráció létrehozása Firebase Auth-ban
+        await firebase.auth().createUserWithEmailAndPassword(email, password);
+
+        // 2. Megerősítő e-mail kiküldése a biztonságos backend végponton keresztül (Resend)
+        const sendRes = await fetch(`${BACKEND_URL}/auth/send-verification`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: email })
+        });
+
+        const sendData = await sendRes.json();
+        if (!sendRes.ok || !sendData.success) {
+          throw new Error(sendData.error || 'A megerősítő e-mail elküldése sikertelen.');
+        }
+
+        // 3. Kijelentkeztetés a sikeres aktiválásig
         await firebase.auth().signOut();
-        
+
         alert('Sikeres regisztráció! Küldtünk egy megerősítő linket az e-mail címedre. Kérlek, kattints rá a fiókod aktiválásához!');
         authModal.style.display = 'none';
         authForm.reset();
       } else {
         // Bejelentkezés
         const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-        
+
         // Ellenőrizzük, hogy megerősítette-e az e-mail címét
         if (!userCredential.user.emailVerified) {
           authErrorBox.innerHTML = `
-            ⚠️ Az e-mail címed még nincs megerősítve!<br>
+            Figyelem: Az e-mail címed még nincs megerősítve!<br>
             <button type="button" id="resendVerificationBtn" class="btn btn-outline" style="font-size:11px; padding:4px 8px; margin-top:6px; color:#2563eb; border-color:#93c5fd;">
               Megerősítő e-mail újraküldése
             </button>
           `;
           authErrorBox.style.display = 'block';
 
-          // Újraküldés gomb eseménykezelője
+          // Újraküldés gomb eseménykezelője a backend végponttal
           document.getElementById('resendVerificationBtn').addEventListener('click', async () => {
             try {
-              await userCredential.user.sendEmailVerification();
+              const resendRes = await fetch(`${BACKEND_URL}/auth/send-verification`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+              });
+
+              const resendData = await resendRes.json();
+              if (!resendRes.ok || !resendData.success) {
+                throw new Error(resendData.error || 'Sikertelen újraküldés.');
+              }
+
               alert('Az új megerősítő e-mailt elküldtük!');
             } catch (err) {
               alert('Hiba az újraküldéskor: ' + err.message);
