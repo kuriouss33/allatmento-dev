@@ -37,7 +37,8 @@ const translations = {
     btnActiveReports: "Bejelentések",
     btnNewReport: "Új bejelentést teszek",
     btnMyCases: "Saját ügyeim & Vállalásaim",
-    btnInfo: "Információk & Elérhetőségek",
+    btnSzervezetek: "Szervezetek & Menhelyek",
+    btnKisokos: "Elsősegély Kisokos",
     backToMenu: "Vissza a főmenübe",
     activeReportsTitle: "Bejelentések",
     activeReportsSub: "Kövesd az ügyek állapotát vagy vállalj mentést!",
@@ -113,8 +114,10 @@ const translations = {
     searchNotFound: "Nem találtunk ilyen címet. Próbáld meg máshogy írni!",
     searchNetworkError: "Hiba történt a keresés során. Ellenőrizd az internetkapcsolatot!",
     uploadSuccess: "Fotó sikeresen csatolva!",
-    step4Title: "Információk & Útmutatók",
-    step4Sub: "Szervezetek elérhetőségei és teendők vészhelyzet esetén:",
+    szervezetekTitle: "Szervezetek & Elérhetőségek",
+    szervezetekSub: "Menhelyek, állatkórházak és hatóságok elérhetőségei:",
+    kisokosTitle: "Elsősegély Kisokos",
+    kisokosSub: "Hasznos tudnivalók és teendők vészhelyzet esetén:",
     toggleOrganizations: "Szervezetek",
     toggleGuide: "Elsősegély kisokos",
     searchOrgPlaceholder: "Keresés név, város vagy kulcsszó alapján...",
@@ -146,7 +149,8 @@ const translations = {
     btnActiveReports: "Reports",
     btnNewReport: "Submit New Report",
     btnMyCases: "My Cases & Commitments",
-    btnInfo: "Information & Contacts",
+    btnSzervezetek: "Organizations & Shelters",
+    btnKisokos: "First Aid Guide",
     backToMenu: "Back to Main Menu",
     activeReportsTitle: "Reports",
     activeReportsSub: "Track report statuses or volunteer for a rescue!",
@@ -222,8 +226,10 @@ const translations = {
     searchNotFound: "Address not found. Try typing it differently!",
     searchNetworkError: "Error during search. Check your internet connection!",
     uploadSuccess: "Photo attached successfully!",
-    step4Title: "Info & Guides",
-    step4Sub: "Contacts for rescue organizations and emergency guides:",
+    szervezetekTitle: "Organizations & Contacts",
+    szervezetekSub: "Contacts for shelters, clinics, and authorities:",
+    kisokosTitle: "First Aid Guide",
+    kisokosSub: "Useful tips and emergency actions:",
     toggleOrganizations: "Organizations",
     toggleGuide: "First Aid Guide",
     searchOrgPlaceholder: "Search by name, city, or keyword...",
@@ -264,7 +270,8 @@ function updateLanguage(lang) {
 
   const map = {
     "appTitleText": t.appTitle, "appSubText": t.appSub, "btnActiveReportsText": t.btnActiveReports,
-    "btnNewReportText": t.btnNewReport, "btnMyCasesText": t.btnMyCases, "btnInfoText": t.btnInfo,
+    "btnNewReportText": t.btnNewReport, "btnMyCasesText": t.btnMyCases,
+    "btnSzervezetekText": t.btnSzervezetek, "btnKisokosText": t.btnKisokos,
     "activeReportsTitle": t.activeReportsTitle, "activeReportsSub": t.activeReportsSub,
     "toggleMapBtn": t.toggleMap, "toggleListBtn": t.toggleList, "myCasesTitle": t.myCasesTitle,
     "myCasesSub": t.myCasesSub, "step1Badge": t.step1Badge, "step1Title": t.step1Title,
@@ -273,8 +280,9 @@ function updateLanguage(lang) {
     "step2Sub": t.step2Sub, "gpsButton": t.gpsBtn, "manualLocationBtn": t.mapSelectBtn,
     "eredmeny": t.locationDefaultText, "uploadLabelText": t.uploadPhotoText, "removePhotoBtn": t.removePhotoText,
     "vissza1": t.backBtn, "tovabb2": t.nextBtn, "step3Badge": t.step3Badge, "step3Title": t.step3Title,
-    "step3Sub": t.step3Sub, "vissza2": t.backBtn, "kuldes": t.submitBtn, "step4Title": t.step4Title,
-    "step4Sub": t.step4Sub, "toggleSzervezetekBtn": t.toggleOrganizations, "toggleUtmutatoBtn": t.toggleGuide,
+    "step3Sub": t.step3Sub, "vissza2": t.backBtn, "kuldes": t.submitBtn,
+    "szervezetekTitle": t.szervezetekTitle, "szervezetekSub": t.szervezetekSub,
+    "kisokosTitle": t.kisokosTitle, "kisokosSub": t.kisokosSub,
     "optCatAll": t.catAll, "optCatShelter": t.catShelter, "optCatVet": t.catVet, "optCatAuth": t.catAuth,
     "optCatWild": t.catWild, "optCtyAll": t.ctyAll, "optCtyPest": t.ctyPest, "modalHintText": t.modalHint,
     "g1Title": t.g1Title, "g2Title": t.g2Title, "g3Title": t.g3Title, "g4Title": t.g4Title,
@@ -370,7 +378,10 @@ const stepSajat = document.getElementById("stepSajat");
 const step1 = document.getElementById("step1");
 const step2 = document.getElementById("step2");
 const step3 = document.getElementById("step3");
-const step4 = document.getElementById("step4");
+const stepSzervezetek = document.getElementById("stepSzervezetek");
+const stepKisokos = document.getElementById("stepKisokos");
+const menuSzervezetekBtn = document.getElementById("menuSzervezetekBtn");
+const menuKisokosBtn = document.getElementById("menuKisokosBtn");
 const stepAdmin = document.getElementById("stepAdmin");
 
 const imageModal = document.getElementById("imageModal");
@@ -555,10 +566,9 @@ function szurEsKirajzolBejelentesek() {
     const nyersStatusz = (adat.statusz || adat.status || "uj").toLowerCase();
     const statusz = (nyersStatusz === "fuggoben") ? "uj" : nyersStatusz;
 
-    // 1. Státusz illesztése a kiválasztott szűrőhöz (currentMapFilter)
     let matcheliStatuszt = false;
     if (currentMapFilter === 'all') {
-      matcheliStatuszt = (statusz !== 'megoldva'); // Alapértelmezésben a lezártak rejtve
+      matcheliStatuszt = (statusz !== 'megoldva');
     } else if (currentMapFilter === 'open') {
       matcheliStatuszt = (statusz === 'uj');
     } else if (currentMapFilter === 'in_progress') {
@@ -569,7 +579,6 @@ function szurEsKirajzolBejelentesek() {
 
     if (!matcheliStatuszt) return false;
 
-    // 2. Szöveges keresés
     const fajta = (adat.fajta || adat.allatFajta || "").toLowerCase();
     const megjegyzes = (adat.megjegyzes || adat.helyszinLeiras || "").toLowerCase();
     const telefon = (adat.telefon || adat.bejelentoTelefon || "").toLowerCase();
@@ -578,7 +587,6 @@ function szurEsKirajzolBejelentesek() {
 
     const matcheliKeresest = fajta.includes(keresoSzo) || megjegyzes.includes(keresoSzo) || telefon.includes(keresoSzo) || lezaras.includes(keresoSzo);
     
-    // 3. Megye szűrés
     let matcheliMegyet = (kivalasztottMegye === "Összes");
     if (!matcheliMegyet) {
       matcheliMegyet = megye.toLowerCase().includes(kivalasztottMegye.toLowerCase());
@@ -1083,27 +1091,6 @@ toggleListBtn.addEventListener("click", () => {
   if (bejelentesMegyeValaszto) bejelentesMegyeValaszto.style.display = "block";
 });
 
-const toggleSzervezetekBtn = document.getElementById("toggleSzervezetekBtn");
-const toggleUtmutatoBtn = document.getElementById("toggleUtmutatoBtn");
-const szervezetekSzakasz = document.getElementById("szervezetekSzakasz");
-const utmutatoSzakasz = document.getElementById("utmutatoSzakasz");
-
-if (toggleSzervezetekBtn && toggleUtmutatoBtn) {
-  toggleSzervezetekBtn.addEventListener("click", () => {
-    toggleSzervezetekBtn.classList.add("active");
-    toggleUtmutatoBtn.classList.remove("active");
-    szervezetekSzakasz.style.display = "block";
-    utmutatoSzakasz.style.display = "none";
-  });
-
-  toggleUtmutatoBtn.addEventListener("click", () => {
-    toggleUtmutatoBtn.classList.add("active");
-    toggleSzervezetekBtn.classList.remove("active");
-    szervezetekSzakasz.style.display = "none";
-    utmutatoSzakasz.style.display = "block";
-  });
-}
-
 fotoInput.addEventListener("change", function() {
   const t = translations[currentLang];
   const file = this.files[0];
@@ -1264,6 +1251,7 @@ if (szervezetKeresoInput) {
   szervezetKeresoInput.addEventListener("input", szurEsKirajzolSzervezetek);
 }
 
+// === FŐMENÜ GOMBOK ESEMÉNYKEZELŐI ===
 document.getElementById("menuMapBtn").addEventListener("click", () => {
   step0.style.display = "none"; stepMap.style.display = "block";
   setTimeout(() => { mainMap.invalidateSize(); }, 100);
@@ -1278,17 +1266,31 @@ document.getElementById("menuSajatBtn").addEventListener("click", () => {
   betoltSajatUgyek();
 });
 
-document.getElementById("menuInfoBtn").addEventListener("click", () => {
-  step0.style.display = "none"; step4.style.display = "block";
-  betoltSzervezetek(megyeValaszto.value);
-});
+if (menuSzervezetekBtn) {
+  menuSzervezetekBtn.addEventListener("click", () => {
+    step0.style.display = "none";
+    if (stepSzervezetek) stepSzervezetek.style.display = "block";
+    if (megyeValaszto) betoltSzervezetek(megyeValaszto.value);
+  });
+}
+
+if (menuKisokosBtn) {
+  menuKisokosBtn.addEventListener("click", () => {
+    step0.style.display = "none";
+    if (stepKisokos) stepKisokos.style.display = "block";
+  });
+}
 
 document.querySelectorAll(".backToMenuBtn").forEach(btn => {
   btn.addEventListener("click", () => {
     const t = translations[currentLang];
-    stepMap.style.display = "none"; stepSajat.style.display = "none";
-    step1.style.display = "none"; step2.style.display = "none";
-    step3.style.display = "none"; step4.style.display = "none";
+    stepMap.style.display = "none"; 
+    stepSajat.style.display = "none";
+    step1.style.display = "none"; 
+    step2.style.display = "none";
+    step3.style.display = "none"; 
+    if (stepSzervezetek) stepSzervezetek.style.display = "none";
+    if (stepKisokos) stepKisokos.style.display = "none";
     if (stepAdmin) stepAdmin.style.display = "none";
     step0.style.display = "block";
 
@@ -2011,7 +2013,8 @@ if (logoutBtn) {
       if (step1) step1.style.display = 'none';
       if (step2) step2.style.display = 'none';
       if (step3) step3.style.display = 'none';
-      if (step4) step4.style.display = 'none';
+      if (stepSzervezetek) stepSzervezetek.style.display = 'none';
+      if (stepKisokos) stepKisokos.style.display = 'none';
       step0.style.display = 'block';
 
       if (typeof szurEsKirajzolBejelentesek === 'function') szurEsKirajzolBejelentesek();

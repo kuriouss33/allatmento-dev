@@ -34,7 +34,7 @@
     <button id="themeToggleBtn" class="theme-toggle-btn" title="Téma váltása" style="position: static; margin: 0;">🌙</button>
   </div>
 
-<!-- JOBB FELSŐ SAROK: Keskeny, többsoros dinamikus kerekített téglalapok -->
+  <!-- JOBB FELSŐ SAROK: Keskeny, többsoros dinamikus kerekített téglalapok -->
   <div class="header-controls-right" style="position: absolute; top: 14px; right: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; z-index: 10;">
     <span id="userStatusBadge" style="display: none;"></span>
     <button id="openAuthModalBtn" class="btn btn-outline header-compact-btn">🛡️ Mentő<br>Belépés</button>
@@ -42,17 +42,9 @@
   </div>
 
   <div class="logo-header" style="margin-top: 15px; margin-bottom: 20px;">
-    <svg class="app-logo-svg" viewBox="0 0 64 64" width="58" height="58" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 8px;">
-      <defs>
-        <linearGradient id="shieldGrad" x1="32" y1="4" x2="32" y2="60" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#2563eb" />
-          <stop offset="100%" stop-color="#1d4ed8" />
-        </linearGradient>
-      </defs>
-      <path d="M32 6L50 13C50 32 44 49 32 58C20 49 14 32 14 13L32 6Z" fill="url(#shieldGrad)" />
-      <path d="M32 9L47 15C47 31 41.5 46 32 54C22.5 46 17 31 17 15L32 9Z" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5" />
-      <path d="M22 30L24 16L30 21C31.3 20.6 32.7 20.6 34 21L40 16L42 30C44 36 39 40 32 40C25 40 20 36 22 30Z" fill="#ffffff" />
-    </svg>
+    <div class="logo-crop-box">
+      <img src="logo.png" alt="Állatmentő Portál logó" class="app-logo-img">
+    </div>
     <h2 id="appTitleText" style="margin: 0; font-size: 20px;">Állatmentő Portál</h2>
     <p id="appSubText" style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Sürgősségi segítség & koordináció</p>
   </div>
@@ -67,11 +59,14 @@
     <button id="menuSajatBtn" class="btn btn-sajat">
       <span id="btnMyCasesText">📋 Saját ügyeim & Vállalásaim</span>
     </button>
-    <button id="menuInfoBtn" class="btn btn-secondary">
-      <span id="btnInfoText">ℹ️ Információk & Elérhetőségek</span>
+    <button id="menuSzervezetekBtn" class="btn btn-szervezetek">
+      <span id="btnSzervezetekText">🏥 Szervezetek & Menhelyek</span>
+    </button>
+    <button id="menuKisokosBtn" class="btn btn-kisokos">
+      <span id="btnKisokosText">📖 Elsősegély Kisokos</span>
     </button>
     <button id="menuAdminBtn" class="btn btn-outline" style="display: none; border-color: #f59e0b; color: #b45309; font-weight: bold;">
-  Rendszer Adminisztráció
+      ⚡ Rendszer Adminisztráció
     </button>
   </div>
 </div>
@@ -116,11 +111,18 @@
     <button id="toggleMapBtn" class="toggle-btn active">🗺️ Térkép</button>
     <button id="toggleListBtn" class="toggle-btn">📋 Lista nézet</button>
   </div>
-  <div id="mapFilterBar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-  <button type="button" class="btn btn-filter active" data-filter="all" onclick="filterMapMarkers('all')">Mind</button>
-  <button type="button" class="btn btn-filter" data-filter="open" onclick="filterMapMarkers('open')">Új / Függőben</button>
-  <button type="button" class="btn btn-filter" data-filter="in_progress" onclick="filterMapMarkers('in_progress')">Folyamatban</button>
-  <button type="button" class="btn btn-filter" data-filter="resolved" onclick="filterMapMarkers('resolved')">Megoldva</button>
+
+  <div id="mapFilterBar" class="status-filter-scroll">
+    <button type="button" class="btn-filter active" data-filter="all" onclick="filterMapMarkers('all')">Mind</button>
+    <button type="button" class="btn-filter" data-filter="open" onclick="filterMapMarkers('open')">
+      <span class="filter-dot dot-uj"></span>Új
+    </button>
+    <button type="button" class="btn-filter" data-filter="in_progress" onclick="filterMapMarkers('in_progress')">
+      <span class="filter-dot dot-folyamatban"></span>Úton
+    </button>
+    <button type="button" class="btn-filter" data-filter="resolved" onclick="filterMapMarkers('resolved')">
+      <span class="filter-dot dot-megoldva"></span>Kész
+    </button>
   </div>
 
   <div id="mainMap" class="map-box"></div>
@@ -281,99 +283,88 @@
   </div>
 </div>
 
-<!-- ================= 4. KÉPERNYŐ: Információk & Útmutatók ================= -->
-<div class="container" id="step4" style="display: none;">
-  <h2 id="step4Title">ℹ️ Információk & Útmutatók</h2>
-  <p id="step4Sub">Szervezetek elérhetőségei és teendők vészhelyzet esetén:</p>
+<!-- ================= SZERVEZETEK NÉZET ================= -->
+<div class="container" id="stepSzervezetek" style="display: none;">
+  <h2 id="szervezetekTitle">Szervezetek & Elérhetőségek</h2>
+  <p id="szervezetekSub" style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Menhelyek, állatkórházak és hatóságok elérhetőségei:</p>
 
-  <div class="view-toggle">
-    <button id="toggleSzervezetekBtn" class="toggle-btn active" type="button">📞 Szervezetek</button>
-    <button id="toggleUtmutatoBtn" class="toggle-btn" type="button">💡 Elsősegély kisokos</button>
-  </div>
+  <div class="filter-controls-stack" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; width: 100%;">
+    <input type="text" id="szervezetKeresoInput" placeholder="🔍 Keresés név, város vagy kulcsszó alapján..." style="width: 100%; margin: 0; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+    
+    <div style="display: flex; gap: 8px; width: 100%;">
+      <select id="kategoriaValaszto" class="custom-select" style="flex: 1; margin: 0; padding: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+        <option value="Összes" id="optCatAll">Minden kategória</option>
+        <option value="menhely" id="optCatShelter">Menhelyek & Egyesületek</option>
+        <option value="orvos" id="optCatVet">Állatkórházak & Rendelők</option>
+        <option value="hatosag" id="optCatAuth">Hatóságok & Polgárőrség</option>
+        <option value="vad" id="optCatWild">Vadmentés</option>
+      </select>
 
-  <div id="szervezetekSzakasz" style="display: flex; flex-direction: column; gap: 10px;">
-    <input type="text" id="szervezetKeresoInput" placeholder="🔍 Keresés név, város vagy kulcsszó alapján..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; box-sizing: border-box; margin: 0;">
-
-    <select id="kategoriaValaszto" class="custom-select" style="margin: 0;">
-      <option value="Összes" id="optCatAll">Minden kategória</option>
-      <option value="mentoszervezet" id="optCatShelter">🐕 Menhelyek & Egyesületek</option>
-      <option value="orvos" id="optCatVet">🏥 Állatkórházak & Rendelők</option>
-      <option value="hatosag" id="optCatAuth">🏛️ Hatóságok & Polgárőrség</option>
-      <option value="vad" id="optCatWild">🦅 Vadmentés</option>
-    </select>
-
-    <select id="megyeValaszto" class="custom-select" style="margin: 0;">
-      <option value="Összes" id="optCtyAll">Összes megye / régió</option>
-      <option value="Budapest">Budapest</option>
-      <option value="Pest" id="optCtyPest">Pest megye</option>
-      <option value="Bács-Kiskun">Bács-Kiskun</option>
-      <option value="Baranya">Baranya</option>
-      <option value="Borsod-Abaúj-Zemplén">Borsod-Abaúj-Zemplén</option>
-      <option value="Csongrád-Csanád">Csongrád-Csanád</option>
-      <option value="Fejér">Fejér</option>
-      <option value="Győr-Moson-Sopron">Győr-Moson-Sopron</option>
-      <option value="Hajdú-Bihar">Hajdú-Bihar</option>
-    </select>
-
-    <div id="szervezetekLista">
-      <p style="color: #64748b;">⏳ Szervezetek betöltése...</p>
+      <select id="megyeValaszto" class="custom-select" style="flex: 1; margin: 0; padding: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+        <option value="Összes" id="optCtyAll">Összes megye / régió</option>
+        <option value="Budapest">Budapest</option>
+        <option value="Bács-Kiskun">Bács-Kiskun</option>
+        <option value="Baranya">Baranya</option>
+        <option value="Békés">Békés</option>
+        <option value="Borsod-Abaúj-Zemplén">Borsod-Abaúj-Zemplén</option>
+        <option value="Csongrád-Csanád">Csongrád-Csanád</option>
+        <option value="Fejér">Fejér</option>
+        <option value="Győr-Moson-Sopron">Győr-Moson-Sopron</option>
+        <option value="Hajdú-Bihar">Hajdú-Bihar</option>
+        <option value="Heves">Heves</option>
+        <option value="Jász-Nagykun-Szolnok">Jász-Nagykun-Szolnok</option>
+        <option value="Komárom-Esztergom">Komárom-Esztergom</option>
+        <option value="Nógrád">Nógrád</option>
+        <option value="Pest" id="optCtyPest">Pest megye</option>
+        <option value="Somogy">Somogy</option>
+        <option value="Szabolcs-Szatmár-Bereg">Szabolcs-Szatmár-Bereg</option>
+        <option value="Tolna">Tolna</option>
+        <option value="Vas">Vas</option>
+        <option value="Veszprém">Veszprém</option>
+        <option value="Zala">Zala</option>
+      </select>
     </div>
   </div>
 
-  <div id="utmutatoSzakasz" style="display: none; text-align: left;">
-    <div class="guide-card">
-      <div class="guide-header">
-        <span class="guide-icon">🐣</span>
-        <h3 id="g1Title">Madárfióka (Csupasz vagy tollas?)</h3>
-      </div>
-      <div class="guide-body" id="g1Body"></div>
-    </div>
-
-    <div class="guide-card">
-      <div class="guide-header">
-        <span class="guide-icon">🦅</span>
-        <h3 id="g2Title">Felnőtt, sérült madár</h3>
-      </div>
-      <div class="guide-body" id="g2Body"></div>
-    </div>
-
-    <div class="guide-card">
-      <div class="guide-header">
-        <span class="guide-icon">🐱</span>
-        <h3 id="g3Title">Sérült vagy elütött macska</h3>
-      </div>
-      <div class="guide-body" id="g3Body"></div>
-    </div>
-
-    <div class="guide-card">
-      <div class="guide-header">
-        <span class="guide-icon">🐶</span>
-        <h3 id="g4Title">Talált vagy elütött kutya</h3>
-      </div>
-      <div class="guide-body" id="g4Body"></div>
-    </div>
-
-    <div class="guide-card">
-      <div class="guide-header">
-        <span class="guide-icon">🦔</span>
-        <h3 id="g5Title">Sünök & Denevérek</h3>
-      </div>
-      <div class="guide-body" id="g5Body"></div>
-    </div>
-
-    <div class="guide-card">
-      <div class="guide-header">
-        <span class="guide-icon">🦊</span>
-        <h3 id="g6Title">Nagyvadak (Őz, Róka, Vaddisznó)</h3>
-      </div>
-      <div class="guide-body" id="g6Body"></div>
-    </div>
-  </div>
-
-  <button class="backToMenuBtn btn btn-outline" style="margin-top: 15px;" type="button">← Vissza a főmenübe</button>
+  <div id="szervezetekLista"></div>
+  <button type="button" class="backToMenuBtn btn btn-outline" style="margin-top: 15px;">← Vissza a főmenübe</button>
 </div>
 
-  <!-- ================= ADMIN DASHBOARD KÉPERNYŐ ================= -->
+<!-- ================= KISOKOS NÉZET ================= -->
+<div class="container" id="stepKisokos" style="display: none;">
+  <h2 id="kisokosTitle">Elsősegély Kisokos</h2>
+  <p id="kisokosSub" style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Hasznos tudnivalók és teendők vészhelyzet esetén:</p>
+
+  <div id="utmutatoSzakasz" class="guide-list">
+    <div class="guide-card">
+      <div class="guide-header"><h3 id="g1Title"></h3></div>
+      <div id="g1Body" class="guide-body"></div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-header"><h3 id="g2Title"></h3></div>
+      <div id="g2Body" class="guide-body"></div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-header"><h3 id="g3Title"></h3></div>
+      <div id="g3Body" class="guide-body"></div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-header"><h3 id="g4Title"></h3></div>
+      <div id="g4Body" class="guide-body"></div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-header"><h3 id="g5Title"></h3></div>
+      <div id="g5Body" class="guide-body"></div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-header"><h3 id="g6Title"></h3></div>
+      <div id="g6Body" class="guide-body"></div>
+    </div>
+  </div>
+  <button type="button" class="backToMenuBtn btn btn-outline" style="margin-top: 15px;">← Vissza a főmenübe</button>
+</div>
+
+<!-- ================= ADMIN DASHBOARD KÉPERNYŐ ================= -->
 <div class="container" id="stepAdmin" style="display: none;">
   <div class="step-header">
     <span class="step-badge" style="background: #fef3c7; color: #b45309;">⚡ Admin Vezérlőpult</span>
@@ -391,7 +382,7 @@
 </div>
 
 <!-- ================= KÉPNÉZŐ MODAL ================= -->
-<div id="imageModal" class="modal">
+<div id="imageModal" class="modal" style="display: none;">
   <button id="closeModalBtn" class="close-modal-btn">❌ Bezárás</button>
   <div class="modal-content-wrapper">
     <img id="modalImage" src="" alt="Nagyított kép">
@@ -399,6 +390,6 @@
   <p class="modal-hint" id="modalHintText">Görgess vagy húzd az ujjad a zoomoláshoz</p>
 </div>
 
-<script src="script.js?v=2.0.3"></script>
+<script src="script.js?v=2.0.4"></script>
 </body>
 </html>
