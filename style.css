@@ -1182,3 +1182,137 @@ textarea { resize: vertical; min-height: 150px; }
   background: rgba(34, 197, 94, 0.12) !important;
   border-color: rgba(34, 197, 94, 0.3) !important;
 }
+
+.btn-filter {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-filter:hover {
+  background-color: #e2e8f0;
+}
+
+.btn-filter.active {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* Egyedi terkepi gombostu alapja */
+.custom-map-pin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Belso kis mag a pontos iranyitashoz */
+.custom-map-pin::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  position: absolute;
+}
+
+/* Statusz szinek */
+.custom-map-pin.pin-uj {
+  background-color: #ef4444; /* Piros - Uj bejelentes */
+}
+
+.custom-map-pin.pin-folyamatban {
+  background-color: #f59e0b; /* Sarga/Narancs - Folyamatban */
+}
+
+.custom-map-pin.pin-megoldva {
+  background-color: #10b981; /* Zold - Megoldva */
+}
+
+/* Kompakt, 1 soros szűrősáv konténer */
+.status-filter-scroll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  padding: 2px 0;
+}
+
+.status-filter-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+/* Vékony, modern tabletta (pill) gombok */
+.btn-filter {
+  flex: 1;
+  min-width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 20px;
+  background-color: var(--bg-card, #f1f5f9);
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+/* Aktív állapot */
+.btn-filter.active {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* Kis színes státuszpöttyök a szöveg előtt */
+.filter-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-uj {
+  background-color: #ef4444;
+}
+
+.dot-folyamatban {
+  background-color: #f59e0b;
+}
+
+.dot-megoldva {
+  background-color: #10b981;
+}
+
+/* Sötét mód igazítás */
+[data-theme="dark"] .btn-filter {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .btn-filter.active {
+  background-color: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+}

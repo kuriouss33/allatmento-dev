@@ -1,13 +1,17 @@
-// === SÖTÉT MÓD LOGIKA ===
+// === SÖTÉT MÓD LOGIKA (SVG IKONOKKAL) ===
 const themeToggleBtn = document.getElementById("themeToggleBtn");
 const currentTheme = localStorage.getItem("allatmento_theme");
 
+const sunIconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+
+const moonIconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
 if (currentTheme === "dark" || (!currentTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
   document.documentElement.setAttribute("data-theme", "dark");
-  if (themeToggleBtn) themeToggleBtn.innerText = "☀️";
+  if (themeToggleBtn) themeToggleBtn.innerHTML = sunIconSvg;
 } else {
   document.documentElement.setAttribute("data-theme", "light");
-  if (themeToggleBtn) themeToggleBtn.innerText = "🌙";
+  if (themeToggleBtn) themeToggleBtn.innerHTML = moonIconSvg;
 }
 
 if (themeToggleBtn) {
@@ -16,11 +20,11 @@ if (themeToggleBtn) {
     if (theme === "dark") {
       document.documentElement.setAttribute("data-theme", "light");
       localStorage.setItem("allatmento_theme", "light");
-      themeToggleBtn.innerText = "🌙";
+      themeToggleBtn.innerHTML = moonIconSvg;
     } else {
       document.documentElement.setAttribute("data-theme", "dark");
       localStorage.setItem("allatmento_theme", "dark");
-      themeToggleBtn.innerText = "☀️";
+      themeToggleBtn.innerHTML = sunIconSvg;
     }
   });
 }
@@ -34,18 +38,18 @@ const translations = {
     btnNewReport: "Új bejelentést teszek",
     btnMyCases: "Saját ügyeim & Vállalásaim",
     btnInfo: "Információk & Elérhetőségek",
-    backToMenu: "← Vissza a főmenübe",
+    backToMenu: "Vissza a főmenübe",
     activeReportsTitle: "Bejelentések",
     activeReportsSub: "Kövesd az ügyek állapotát vagy vállalj mentést!",
     toggleMap: "Térkép",
     toggleList: "Lista nézet",
-    searchPlaceholder: "🔍 Keresés fajta, megjegyzés vagy tel. alapján...",
-    myCasesTitle: "📋 Saját Ügyeim",
+    searchPlaceholder: "Keresés fajta, megjegyzés vagy tel. alapján...",
+    myCasesTitle: "Saját Ügyeim",
     myCasesSub: "Az általad tett és az elvállalt bejelentések:",
     noReportsFound: "Nincs a keresésnek megfelelő bejelentés.",
-    noPhone: "📞 Telefonszám nincs megadva",
+    noPhone: "Telefonszám nincs megadva",
     callBtn: "Hívás",
-    callOrgBtn: "📞 HÍVÁS MOST",
+    callOrgBtn: "HÍVÁS MOST",
     openMapLink: "Pontos helyszín megnyitása Google Maps-en",
     solutionLabel: "Megoldás:",
     noNotes: "Nincs megjegyzés",
@@ -60,17 +64,17 @@ const translations = {
     statusNewBadge: "ÚJ BEJELENTÉS",
     statusInProgBadge: "FOLYAMATBAN (Úton)",
     btnTake: "Úton vagyok / Elvállalom",
-    btnSolved: "Úgy látom, megoldva!",
+    btnSolved: "Megoldva",
     btnCancelTake: "Mégsem tudom vállalni",
     statusTakenByOther: "Valaki már úton van erre az ügyre",
-    statusCaseClosed: "✅ Ez az ügy lezárult",
+    statusCaseClosed: "Ez az ügy lezárult",
     btnReopen: "Újrakiadás / Visszaállítás",
     deleteConfirmQuestion: "Biztosan törlöd ezt a bejelentést?",
     btnYesDelete: "IGEN, TÖRÖLD",
     btnCancel: "Mégsem",
     resolveInputLabel: "Megoldás részletei:",
-    resolveRequiredError: "⚠️ Kérlek, írd le röviden a megoldást a lezáráshoz!",
-    btnSaveResolve: "✅ Mentés & Lezárás",
+    resolveRequiredError: "Kérlek, írd le röviden a megoldást a lezáráshoz!",
+    btnSaveResolve: "Mentés & Lezárás",
     step1Badge: "1 / 3 LÉPÉS",
     step1Title: "Állatfajta",
     step1Sub: "Milyen állatról van szó?",
@@ -78,15 +82,15 @@ const translations = {
     typeCat: "Macska",
     typeWild: "Vadállat",
     typeOther: "Egyéb",
-    nextBtn: "Tovább →",
-    backBtn: "← Vissza",
+    nextBtn: "Tovább",
+    backBtn: "Vissza",
     step2Badge: "2 / 3 LÉPÉS",
     step2Title: "Helyszín & Fotó",
     step2Sub: "Hol láttad az állatot? Csatolhatsz fotót is.",
-    gpsBtn: "📍 Saját pozíció lekérése (GPS)",
-    mapSelectBtn: "🗺️ Helyszín kiválasztása a térképen",
+    gpsBtn: "Saját pozíció lekérése (GPS)",
+    mapSelectBtn: "Helyszín kiválasztása a térképen",
     uploadPhotoText: "Fotó készítése / Csatolása",
-    removePhotoText: "❌ Fotó eltávolítása",
+    removePhotoText: "Fotó eltávolítása",
     searchAddressPlaceholder: "Cím keresése (pl. Budapest, Váci út)",
     locationDefaultText: "Válassz a fenti lehetőségek közül!",
     step3Badge: "3 / 3 LÉPÉS",
@@ -97,14 +101,14 @@ const translations = {
     submitBtn: "BEJELENTÉS KÜLDÉSE",
     mapMarkerPopup: "A bejelentés helye (Húzható!)",
     resolvePlaceholder: "Pl.: A cica a Váci Állatkórházba került...",
-    gpsSearching: "⏳ GPS pozíció keresése...",
+    gpsSearching: "GPS pozíció keresése...",
     gpsNotSupported: "A böngésződ nem támogatja a GPS-t. Használd a manuális választást!",
     gpsSuccess: "Pozíció rögzítve! (Áthelyezhető)",
     gpsError: "Nem sikerült lekérni a helyzeted. Kattints a manuális választásra!",
     manualMapHint: "Kattints a térképre vagy húzd a gombostűt a pontos helyszínre!",
     locationSaved: "Új helyszín rögzítve!",
-    searchAddressError: "⚠️ Kérlek, írj be egy címet a kereséshez!",
-    searchSearching: "⏳ Keresés folyamatban...",
+    searchAddressError: "Kérlek, írj be egy címet a kereséshez!",
+    searchSearching: "Keresés folyamatban...",
     searchFound: "Helyszín megtalálva: ",
     searchNotFound: "Nem találtunk ilyen címet. Próbáld meg máshogy írni!",
     searchNetworkError: "Hiba történt a keresés során. Ellenőrizd az internetkapcsolatot!",
@@ -121,18 +125,18 @@ const translations = {
     catWild: "Vadmentés",
     ctyAll: "Összes megye / régió",
     ctyPest: "Pest megye",
-    noOrgFound: "❌ Nincs a keresésnek megfelelő szervezet.",
+    noOrgFound: "Nincs a keresésnek megfelelő szervezet.",
     modalHint: "Görgess vagy húzd az ujjad a zoomoláshoz",
     g1Title: "Madárfióka (Csupasz vagy tollas?)",
-    g1Body: `<p><b>1. Csupasz / Pehelytollas fióka:</b> Még nem tudja elhagyni a fészket. Ha megtalálod a fészket, <b>tedd vissza!</b> (Tévhit: a madarak nem hagyják el a fiókát az emberi szag miatt). Ha a fészek megsemmisült, tegyed egy kis bélelt dobozba és rögzítsd a fára.</p><p><b>2. Tollas fióka (Fészekhagyó):</b> A rigók, cinkék, baglyok fiókái természetes módon elhagyják a fészket, mielőtt röpképesek lennének. A szüleik a földön is etetik őket! <b>Ne vidd el!</b> Csak akkor nyúlj hozzá, ha közvetlen veszélyben van (úttest, macska) – ekkor tedd fel a legközelebbi bokor/fa ágára.</p><p><b>⚠️ Szigorúan TILOS:</b> Fecskendőből vizet vagy tejet nyomni a csőrébe! A légcsőnyílásuk a nyelvük mögött van, így pillanatok alatt megfulladnak tőle.</p>`,
+    g1Body: `<p><b>1. Csupasz / Pehelytollas fióka:</b> Még nem tudja elhagyni a fészket. Ha megtalálod a fészket, <b>tedd vissza!</b> (Tévhit: a madarak nem hagyják el a fiókát az emberi szag miatt). Ha a fészek megsemmisült, tegyed egy kis bélelt dobozba és rögzítsd a fára.</p><p><b>2. Tollas fióka (Fészekhagyó):</b> A rigók, cinkék, baglyok fiókái természetes módon elhagyják a fészket, mielőtt röpképesek lennének. A szüleik a földön is etetik őket! <b>Ne vidd el!</b> Csak akkor nyúlj hozzá, ha közvetlen veszélyben van (úttest, macska) – ekkor tedd fel a legközelebbi bokor/fa ágára.</p><p><b>Szigorúan TILOS:</b> Fecskendőből vizet vagy tejet nyomni a csőrébe! A légcsőnyílásuk a nyelvük mögött van, így pillanatok alatt megfulladnak tőle.</p>`,
     g2Title: "Felnőtt, sérült madár",
-    g2Body: `<p><b>1. Ablaknak repült / Sokkos madár:</b> Gyakran csak agyrázkódása van. Dobj rá egy törölközőt, óvatosan tedd egy zárt, szellőzőnyílásokkal ellátott <b>kartondobozba</b>, és tedd csendes, sötét helyre. 1-2 óra múlva nyisd ki a dobozt a szabadban – ha magához tért, el fog repülni.</p><p><b>2. Lógó szárny, vérzés, törés:</b> Helyezd sötét kartondobozba (a sötétség csökkenti a sokkot). A doboz aljára tegyél papírtörlőt.</p><p><b>⚠️ Fontos:</b> Ne adj neki ételt és vizet is maximum egy pici kupakban vagy tálkában tegyél be mellé! Hívd a legközelebbi Nemzeti Parkot vagy Mályi/Rákosmenti Madármentőket.</p>`,
+    g2Body: `<p><b>1. Ablaknak repült / Sokkos madár:</b> Gyakran csak agyrázkódása van. Dobj rá egy törölközőt, óvatosan tedd egy zárt, szellőzőnyílásokkal ellátott <b>kartondobozba</b>, és tedd csendes, sötét helyre. 1-2 óra múlva nyisd ki a dobozt a szabadban – ha magához tért, el fog repülni.</p><p><b>2. Lógó szárny, vérzés, törés:</b> Helyezd sötét kartondobozba (a sötétség csökkenti a sokkot). A doboz aljára tegyél papírtörlőt.</p><p><b>Fontos:</b> Ne adj neki ételt és vizet is maximum egy pici kupakban vagy tálkában tegyél be mellé! Hívd a legközelebbi Nemzeti Parkot vagy Mályi/Rákosmenti Madármentőket.</p>`,
     g3Title: "Sérült vagy elütött macska",
-    g3Body: `<p><b>1. Védekezés:</b> A fájdalmat érző macska pánikba esik, súlyos harapott/karmolt sebet okozhat! Használj vastag pokrócot vagy munkavédelmi kesztyűt.</p><p><b>2. "Burrito" módszer:</b> Terítsd rá a pokrócot, és szorosan tekerd be a testét és a lábait, így biztonságosan fel tudod emelni anélkül, hogy megkarcolna vagy kárt tenne magában.</p><p><b>3. Szállítás:</b> Tedd zárt hordozóba vagy dobozba. Ha sokkos állapotban van (kihűlés fenyegeti), tegyél mellé törölközőbe tekert melegvizes palackot.</p>`,
+    g3Body: `<p><b>1. Védekezés:</b> A fájdalmat érző macska pánikba esik, súlyos harapott/karmolt sebet okozhat! Használj vastag pokrócot vagy munkavédelmi kesztyűt.</p><p><b>2. 'Burrito' módszer:</b> Terítsd rá a pokrócot, és szorosan tekerd be a testét és a lábait, így biztonságosan fel tudod emelni anélkül, hogy megkarcolna vagy kárt tenne magában.</p><p><b>3. Szállítás:</b> Tedd zárt hordozóba vagy dobozba. Ha sokkos állapotban van (kihűlés fenyegeti), tegyél mellé törölközőbe tekert melegvizes palackot.</p>`,
     g4Title: "Talált vagy elütött kutya",
     g4Body: `<p><b>1. Megközelítés:</b> Lassan, guggolva, oldalról közelíts! Ne nézz közvetlenül a szemébe, és beszélj hozzá halkan. Ne tegyél hirtelen mozdulatot.</p><p><b>2. Sérült kutya mozgatása:</b> A fájdalom miatt a legszelídebb kutya is kaphat maga felé. Ha emelned kell, pléd segítségével hordágyként mozgassátok. Ha szükséges, pórázzal vagy gézzel óvatosan kösd át a pofáját a szállítás idejére.</p><p><b>3. Ingyenes chipolvasás:</b> A legtöbb <b>MOL benzinkúton</b> és minden állatorvosnál díjmentesen leolvassák a mikrochipet a gazda értesítéséhez.</p>`,
     g5Title: "Sünök & Denevérek",
-    g5Body: `<p><b>🦔 Sün nappal a szabadban:</b> A sün éjszakai állat. Ha nappal nyílt terepen kóborol, billeg vagy elterül, az szinte biztosan betegséget vagy sérülést jelez. Kesztyűvel tedd magas falu dobozba.</p><p><b>🦔 Kicsi sün télen:</b> Késő ősszel/télen a 400-500 gramm alatti sünök nem tudnak áttelelni, segítségre van szükségük!</p><p><b>🦇 Denevér a lakásban/földön:</b> Védett állat! <b>Soha ne nyúlj hozzá puszta kézzel!</b> Teríts rá egy rongyot, tedd dobozba és értesítsd a helyi Nemzeti Park Igazgatóságot.</p>`,
+    g5Body: `<p><b>Sün nappal a szabadban:</b> A sün éjszakai állat. Ha nappal nyílt terepen kóborol, billeg vagy elterül, az szinte biztosan betegséget vagy sérülést jelez. Kesztyűvel tedd magas falú dobozba.</p><p><b>Kicsi sün télen:</b> Késő ősszel/télen a 400-500 gramm alatti sünök nem tudnak áttelelni, segítségre van szükségük!</p><p><b>Denevér a lakásban/földön:</b> Védett állat! <b>Soha ne nyúlj hozzá puszta kézzel!</b> Teríts rá egy rongyot, tedd dobozba és értesítsd a helyi Nemzeti Park Igazgatóságot.</p>`,
     g6Title: "Nagyvadak (Őz, Róka, Vaddisznó)",
     g6Body: `<p><b>1. Saját biztonság:</b> Sérült őzhöz, vaddisznóhoz ne menj közel! A patájukkal és agyarukkal életveszélyes sérülést okozhatnak.</p><p><b>2. Közúti baleset esetén:</b> Kapcsold be a vészvillogót, tegyed ki az elakadásjelző háromszöget. Hívd a <b>112-es segélyhívót</b> – ők értesítik a területileg illetékes vadásztársaságot.</p><p><b>3. Autópályán:</b> Az autópálya-kezelőt vagy a 112-t értesítsd, ne szállj ki az autóból a leállósávban sem védőfelszerelés nélkül!</p>`
   },
@@ -143,7 +147,7 @@ const translations = {
     btnNewReport: "Submit New Report",
     btnMyCases: "My Cases & Commitments",
     btnInfo: "Information & Contacts",
-    backToMenu: "← Back to Main Menu",
+    backToMenu: "Back to Main Menu",
     activeReportsTitle: "Reports",
     activeReportsSub: "Track report statuses or volunteer for a rescue!",
     toggleMap: "Map",
@@ -153,8 +157,8 @@ const translations = {
     myCasesSub: "Reports created or undertaken by you:",
     noReportsFound: "No reports matching your search.",
     noPhone: "Phone number not provided",
-    callBtn: "📞 Call",
-    callOrgBtn: "📞 CALL NOW",
+    callBtn: "Call",
+    callOrgBtn: "CALL NOW",
     openMapLink: "Open exact location on Google Maps",
     solutionLabel: "Resolution:",
     noNotes: "No additional notes",
@@ -169,18 +173,18 @@ const translations = {
     statusNewBadge: "NEW REPORT",
     statusInProgBadge: "IN PROGRESS (On the way)",
     btnTake: "On my way / Volunteer",
-    btnSolved: "✅ I consider it resolved!",
+    btnSolved: "Resolved",
     btnCancelTake: "Cancel my volunteer status",
     statusTakenByOther: "Someone is already on their way",
     resolvePlaceholder: "E.g., The cat was brought to the vet...",
-    statusCaseClosed: "✅ This case is closed",
+    statusCaseClosed: "This case is closed",
     btnReopen: "Reopen / Reset Case",
     deleteConfirmQuestion: "Are you sure you want to delete this report?",
     btnYesDelete: "YES, DELETE",
     btnCancel: "Cancel",
     resolveInputLabel: "Resolution details:",
-    resolveRequiredError: "⚠️ Please provide a brief explanation to resolve this report!",
-    btnSaveResolve: "✅ Save & Close",
+    resolveRequiredError: "Please provide a brief explanation to resolve this report!",
+    btnSaveResolve: "Save & Close",
     step1Badge: "STEP 1 / 3",
     step1Title: "Animal Species",
     step1Sub: "What kind of animal is it?",
@@ -188,8 +192,8 @@ const translations = {
     typeCat: "Cat",
     typeWild: "Wild Animal",
     typeOther: "Other",
-    nextBtn: "Next →",
-    backBtn: "← Back",
+    nextBtn: "Next",
+    backBtn: "Back",
     step2Badge: "STEP 2 / 3",
     step2Title: "Location & Photo",
     step2Sub: "Where did you see the animal? You can attach a photo.",
@@ -206,14 +210,14 @@ const translations = {
     notesPlaceholder: "E.g., Scared, hiding under bushes, blue collar...",
     phonePlaceholder: "Your phone number (optional)",
     submitBtn: "SUBMIT REPORT",
-    gpsSearching: "⏳ Searching GPS location...",
+    gpsSearching: "Searching GPS location...",
     gpsNotSupported: "GPS is not supported by your browser. Use manual selection!",
     gpsSuccess: "Location saved! (Draggable)",
     gpsError: "Could not retrieve GPS location. Please select manually!",
     manualMapHint: "Click on the map or drag the pin to the exact location!",
     locationSaved: "New location saved!",
-    searchAddressError: "⚠️ Please enter an address to search!",
-    searchSearching: "⏳ Searching...",
+    searchAddressError: "Please enter an address to search!",
+    searchSearching: "Searching...",
     searchFound: "Location found: ",
     searchNotFound: "Address not found. Try typing it differently!",
     searchNetworkError: "Error during search. Check your internet connection!",
@@ -230,18 +234,18 @@ const translations = {
     catWild: "Wildlife Rescue",
     ctyAll: "All counties / regions",
     ctyPest: "Pest county",
-    noOrgFound: "❌ No organizations matching your search.",
+    noOrgFound: "No organizations matching your search.",
     modalHint: "Pinch or scroll to zoom",
     g1Title: "Bird Chick (Fledged or Unfledged?)",
-    g1Body: `<p><b>1. Naked / Downy Chick:</b> Cannot leave the nest yet. If you find the nest, <b>put it back!</b> (Myth: birds do not abandon chicks due to human scent). If destroyed, put it in a lined box and attach to the tree.</p><p><b>2. Fledged Chick:</b> Fledglings naturally leave the nest before being able to fly well. Parents feed them on the ground! <b>Do not remove them!</b> Only intervene if in immediate danger (road, cat) – place onto a nearby branch.</p><p><b>⚠️ Strictly FORBIDDEN:</b> Squirt water or milk into the beak! Their airway is behind the tongue; they can suffocate instantly.</p>`,
+    g1Body: `<p><b>1. Naked / Downy Chick:</b> Cannot leave the nest yet. If you find the nest, <b>put it back!</b> (Myth: birds do not abandon chicks due to human scent). If destroyed, put it in a lined box and attach to the tree.</p><p><b>2. Fledged Chick:</b> Fledglings naturally leave the nest before being able to fly well. Parents feed them on the ground! <b>Do not remove them!</b> Only intervene if in immediate danger (road, cat) – place onto a nearby branch.</p><p><b>Strictly FORBIDDEN:</b> Squirt water or milk into the beak! Their airway is behind the tongue; they can suffocate instantly.</p>`,
     g2Title: "Adult, Injured Bird",
-    g2Body: `<p><b>1. Window Collision / Shocked:</b> Often just a concussion. Throw a towel over it, place gently in a closed, ventilated <b>cardboard box</b> in a quiet, dark spot. Open outside after 1-2 hours – if recovered, it will fly away.</p><p><b>2. Drooping Wing, Bleeding, Fracture:</b> Keep in a dark box to reduce shock. Line the bottom with paper towels.</p><p><b>⚠️ Important:</b> Do not give food/water except a tiny cap. Call a local Wildlife Rescue center!</p>`,
+    g2Body: `<p><b>1. Window Collision / Shocked:</b> Often just a concussion. Throw a towel over it, place gently in a closed, ventilated <b>cardboard box</b> in a quiet, dark spot. Open outside after 1-2 hours – if recovered, it will fly away.</p><p><b>2. Drooping Wing, Bleeding, Fracture:</b> Keep in a dark box to reduce shock. Line the bottom with paper towels.</p><p><b>Important:</b> Do not give food/water except a tiny cap. Call a local Wildlife Rescue center!</p>`,
     g3Title: "Injured or Hit Cat",
     g3Body: `<p><b>1. Protection:</b> A cat in pain will panic and can inflict severe bites/scratches! Use a thick blanket or heavy gloves.</p><p><b>2. 'Burrito' Method:</b> Wrap firmly in a blanket to immobilize legs so you can safely lift it without injury to either party.</p><p><b>3. Transport:</b> Place in a secure carrier or box. Keep warm with a wrapped hot water bottle if in shock.</p>`,
     g4Title: "Found or Injured Dog",
     g4Body: `<p><b>1. Approach:</b> Move slowly, crouch, approach from the side. Avoid direct eye contact and speak softly.</p><p><b>2. Handling Injured Dogs:</b> Even gentle dogs may bite when in severe pain. Move using a blanket as a stretcher. Muzzle gently with gauze if necessary.</p><p><b>3. Free Microchip Scan:</b> Available at most <b>MOL gas stations</b> and all veterinary clinics to contact the owner.</p>`,
     g5Title: "Hedgehogs & Bats",
-    g5Body: `<p><b>🦔 Hedgehog in daylight:</b> Nocturnal animals. Roaming in daylight indicates illness/injury. Put in a high-walled box using gloves.</p><p><b>🦔 Small Hedgehogs in winter:</b> Under 400-500g in late autumn cannot survive hibernation without assistance.</p><p><b>🦇 Bat indoors/ground:</b> Protected species! <b>Never touch with bare hands!</b> Cover with a cloth, box it, and call local Park Authorities.</p>`,
+    g5Body: `<p><b>Hedgehog in daylight:</b> Nocturnal animals. Roaming in daylight indicates illness/injury. Put in a high-walled box using gloves.</p><p><b>Small Hedgehogs in winter:</b> Under 400-500g in late autumn cannot survive hibernation without assistance.</p><p><b>Bat indoors/ground:</b> Protected species! <b>Never touch with bare hands!</b> Cover with a cloth, box it, and call local Park Authorities.</p>`,
     g6Title: "Large Wildlife (Deer, Fox, Boar)",
     g6Body: `<p><b>1. Personal Safety:</b> Keep distance from injured deer or wild boars! Hooves and tusks cause severe injury.</p><p><b>2. Road Accidents:</b> Turn hazard lights on, set up triangle. Call <b>112 Emergency</b> – they alert local hunting associations.</p><p><b>3. Highways:</b> Call 112 or highway operators; stay safe inside your vehicle.</p>`
   }
@@ -252,9 +256,9 @@ let currentLang = localStorage.getItem("allatmento_lang") || "hu";
 function updateLanguage(lang) {
   currentLang = lang;
   localStorage.setItem("allatmento_lang", lang);
-  
+
   const langBtn = document.getElementById("langToggleBtn");
-  if (langBtn) langBtn.innerText = lang === "hu" ? "🇬🇧 EN" : "🇭🇺 HU";
+  if (langBtn) langBtn.innerText = lang === "hu" ? "EN" : "HU";
 
   const t = translations[lang];
 
@@ -399,74 +403,140 @@ let activeMarkers = {};
 let osszesBejelentesMemoria = [];
 let osszesSzervezetMemoria = [];
 
+// === TÉRKÉP ÉS KLASZTER INICIALIZÁLÁSA ===
 const mainMap = L.map('mainMap').setView([47.1625, 19.5033], 7);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
+  maxZoom: 19,
+  attribution: '© OpenStreetMap'
 }).addTo(mainMap);
 
-db.collection("bejelentesek").onSnapshot((snapshot) => {
-  const activeDocIds = snapshot.docs.map(doc => doc.id);
-  const t = translations[currentLang];
+const markerClusterGroup = L.markerClusterGroup({
+  showCoverageOnHover: false,
+  maxClusterRadius: 50,
+  spiderfyOnMaxZoom: true
+});
+mainMap.addLayer(markerClusterGroup);
 
-  Object.keys(activeMarkers).forEach(id => {
-    if (!activeDocIds.includes(id)) {
-      mainMap.removeLayer(activeMarkers[id]);
-      delete activeMarkers[id];
+let currentMapFilter = 'all';
+
+// Státuszfüggő marker ikon
+function getMarkerIconByStatus(statusz) {
+  let pinClass = 'pin-uj';
+
+  if (statusz === 'folyamatban') {
+    pinClass = 'pin-folyamatban';
+  } else if (statusz === 'megoldva') {
+    pinClass = 'pin-megoldva';
+  }
+
+  return L.divIcon({
+    className: 'custom-pin-container',
+    html: `<div class="custom-map-pin ${pinClass}"></div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -26]
+  });
+}
+
+// Markerek kirajzolása és szűrése a térképen
+function frissitTerkepMarkerek() {
+  if (!markerClusterGroup) return;
+  markerClusterGroup.clearLayers();
+  activeMarkers = {};
+
+  const t = translations[currentLang] || translations.hu;
+
+  osszesBejelentesMemoria.forEach(elem => {
+    const adat = elem.adat;
+    const id = elem.id;
+    const nyersStatusz = (adat.statusz || adat.status || 'uj').toLowerCase();
+    const statusz = (nyersStatusz === 'fuggoben') ? 'uj' : nyersStatusz;
+
+    let illeszkedik = false;
+    if (currentMapFilter === 'all') {
+      illeszkedik = (statusz !== 'megoldva');
+    } else if (currentMapFilter === 'open') {
+      illeszkedik = (statusz === 'uj');
+    } else if (currentMapFilter === 'in_progress') {
+      illeszkedik = (statusz === 'folyamatban');
+    } else if (currentMapFilter === 'resolved') {
+      illeszkedik = (statusz === 'megoldva');
+    }
+
+    if (!illeszkedik) return;
+
+    const reportLat = parseFloat(adat.lat);
+    const reportLon = parseFloat(adat.lng !== undefined ? adat.lng : adat.lon);
+
+    if (!isNaN(reportLat) && !isNaN(reportLon)) {
+      const kepHtml = (adat.fotoUrl || adat.kepUrl)
+        ? `<br><img src="${adat.fotoUrl || adat.kepUrl}" class="popup-img" onclick="openImageModal('${adat.fotoUrl || adat.kepUrl}')" alt="Állat fotója">` 
+        : '';
+
+      const statuszText = (statusz === 'uj') 
+        ? t.statusNewBadge 
+        : (statusz === 'folyamatban' ? t.statusInProgBadge : t.statusSolved);
+
+      const telefonSorHtml = (adat.telefon || adat.bejelentoTelefon) 
+        ? `Telefonszám: ${adat.telefon || adat.bejelentoTelefon}` 
+        : t.noPhone;
+
+      const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${reportLat},${reportLon}`;
+
+      const popupContent = `
+        <div style="font-family: inherit; font-size: 13px; line-height: 1.4;">
+          <strong style="font-size:14px;">${escapeHtml(adat.fajta || adat.allatFajta || 'Állat')}</strong><br>
+          <span class="status-badge ${statusz}" style="display:inline-block; margin: 4px 0;">${statuszText}</span><br>
+          <span style="color:#64748b; font-size:12px;">${escapeHtml(adat.megjegyzes || adat.helyszinLeiras || '') || t.noNotes}</span><br>
+          <span style="font-size:12px;">${telefonSorHtml}</span>
+          ${kepHtml}
+          <div style="margin: 8px 0 4px 0;">
+            <a href="${navUrl}" target="_blank" rel="noopener noreferrer" 
+               style="display: block; text-align: center; background: #2563eb; color: #ffffff; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600;">
+              Útvonaltervezés
+            </a>
+          </div>
+          ${getStatusButtonHtml(id, statusz, adat.vallaloId || adat.rescuerUid)}
+        </div>
+      `;
+
+      const markerIcon = getMarkerIconByStatus(statusz);
+      const marker = L.marker([reportLat, reportLon], { icon: markerIcon }).bindPopup(popupContent);
+      markerClusterGroup.addLayer(marker);
+      activeMarkers[id] = marker;
+    }
+  });
+}
+
+// Globális szűrőfüggvény a gombokhoz
+window.filterMapMarkers = function(filterStatus) {
+  currentMapFilter = filterStatus;
+
+  document.querySelectorAll('#mapFilterBar .btn-filter').forEach(btn => {
+    if (btn.getAttribute('data-filter') === filterStatus) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
     }
   });
 
+  frissitTerkepMarkerek();
+  szurEsKirajzolBejelentesek();
+};
+
+// Firestore adatbázis valós idejű figyelése
+db.collection("bejelentesek").onSnapshot((snapshot) => {
   osszesBejelentesMemoria = [];
 
   snapshot.docs.forEach((doc) => {
-    const adat = doc.data();
-    const id = doc.id;
-    const statusz = adat.statusz || adat.status || "uj";
-    const tisztitottMegjegyzes = escapeHtml(adat.megjegyzes || adat.helyszinLeiras || "");
-
-    osszesBejelentesMemoria.push({ id: id, adat: adat });
-
-    const reportLat = adat.lat;
-    const reportLon = adat.lon || adat.lng;
-
-    if (reportLat && reportLon) {
-      if (statusz !== "megoldva") {
-        const kepHtml = (adat.fotoUrl || adat.kepUrl)
-          ? `<br><img src="${adat.fotoUrl || adat.kepUrl}" class="popup-img" onclick="openImageModal('${adat.fotoUrl || adat.kepUrl}')" alt="Állat fotója">` 
-          : '';
-
-        const statuszText = statusz === "uj" || statusz === "fuggoben" ? t.statusNewBadge : t.statusInProgBadge;
-
-        const telefonSorHtml = adat.telefon || adat.bejelentoTelefon 
-          ? `📞 ${adat.telefon || adat.bejelentoTelefon}` 
-          : t.noPhone;
-        
-        const popupContent = `
-          <strong style="font-size:14px;">${adat.fajta || adat.allatFajta}</strong><br>
-          <span class="status-badge ${statusz}" style="display:inline-block; margin: 4px 0;">${statuszText}</span><br>
-          <span style="color:#64748b; font-size:12px;">${tisztitottMegjegyzes || t.noNotes}</span><br>
-          <span style="font-size:12px;">${telefonSorHtml}</span>
-          ${kepHtml}
-          ${getStatusButtonHtml(id, statusz, adat.vallaloId || adat.rescuerUid)}
-        `;
-
-        if (activeMarkers[id]) {
-          activeMarkers[id].setPopupContent(popupContent);
-        } else {
-          const marker = L.marker([reportLat, reportLon]).addTo(mainMap).bindPopup(popupContent);
-          activeMarkers[id] = marker;
-        }
-      } else {
-        if (activeMarkers[id]) {
-          mainMap.removeLayer(activeMarkers[id]);
-          delete activeMarkers[id];
-        }
-      }
-    }
+    osszesBejelentesMemoria.push({ id: doc.id, adat: doc.data() });
   });
 
+  frissitTerkepMarkerek();
   szurEsKirajzolBejelentesek();
+}, (error) => {
+  console.error("Firestore hiba a bejelentések betöltésekor:", error);
 });
 
 function szurEsKirajzolBejelentesek() {
@@ -481,14 +551,34 @@ function szurEsKirajzolBejelentesek() {
   bejelentesekLista.innerHTML = "";
 
   const szurtBejelentesek = osszesBejelentesMemoria.filter((elem) => {
-    const fajta = (elem.adat.fajta || elem.adat.allatFajta || "").toLowerCase();
-    const megjegyzes = (elem.adat.megjegyzes || elem.adat.helyszinLeiras || "").toLowerCase();
-    const telefon = (elem.adat.telefon || elem.adat.bejelentoTelefon || "").toLowerCase();
-    const lezaras = (elem.adat.lezarasMegjegyzes || "").toLowerCase();
-    const megye = elem.adat.megye || "";
+    const adat = elem.adat;
+    const nyersStatusz = (adat.statusz || adat.status || "uj").toLowerCase();
+    const statusz = (nyersStatusz === "fuggoben") ? "uj" : nyersStatusz;
+
+    // 1. Státusz illesztése a kiválasztott szűrőhöz (currentMapFilter)
+    let matcheliStatuszt = false;
+    if (currentMapFilter === 'all') {
+      matcheliStatuszt = (statusz !== 'megoldva'); // Alapértelmezésben a lezártak rejtve
+    } else if (currentMapFilter === 'open') {
+      matcheliStatuszt = (statusz === 'uj');
+    } else if (currentMapFilter === 'in_progress') {
+      matcheliStatuszt = (statusz === 'folyamatban');
+    } else if (currentMapFilter === 'resolved') {
+      matcheliStatuszt = (statusz === 'megoldva');
+    }
+
+    if (!matcheliStatuszt) return false;
+
+    // 2. Szöveges keresés
+    const fajta = (adat.fajta || adat.allatFajta || "").toLowerCase();
+    const megjegyzes = (adat.megjegyzes || adat.helyszinLeiras || "").toLowerCase();
+    const telefon = (adat.telefon || adat.bejelentoTelefon || "").toLowerCase();
+    const lezaras = (adat.lezarasMegjegyzes || "").toLowerCase();
+    const megye = adat.megye || "";
 
     const matcheliKeresest = fajta.includes(keresoSzo) || megjegyzes.includes(keresoSzo) || telefon.includes(keresoSzo) || lezaras.includes(keresoSzo);
     
+    // 3. Megye szűrés
     let matcheliMegyet = (kivalasztottMegye === "Összes");
     if (!matcheliMegyet) {
       matcheliMegyet = megye.toLowerCase().includes(kivalasztottMegye.toLowerCase());
@@ -519,7 +609,7 @@ if (bejelentesKeresoInput) {
 function createReportCardHtml(id, adat) {
   const t = translations[currentLang];
   const statusz = adat.statusz || adat.status || "uj";
-  const statuszClass = (statusz === "fuggoben") ? "uj" : statusz; // uj, folyamatban vagy megoldva
+  const statuszClass = (statusz === "fuggoben") ? "uj" : statusz;
   
   const statuszLabel = (statusz === "uj" || statusz === "fuggoben") 
     ? t.statusNew 
@@ -537,11 +627,11 @@ function createReportCardHtml(id, adat) {
   if (adat.idopont && adat.idopont.toDate) {
     const d = adat.idopont.toDate();
     const dateLoc = currentLang === "en" ? "en-US" : "hu-HU";
-    idopontSzoveg = `🕒 ${d.toLocaleDateString(dateLoc)} ${d.toLocaleTimeString(dateLoc, {hour: '2-digit', minute:'2-digit'})}`;
+    idopontSzoveg = `${d.toLocaleDateString(dateLoc)} ${d.toLocaleTimeString(dateLoc, {hour: '2-digit', minute:'2-digit'})}`;
   } else if (adat.createdAt) {
     const d = new Date(adat.createdAt);
     const dateLoc = currentLang === "en" ? "en-US" : "hu-HU";
-    idopontSzoveg = `🕒 ${d.toLocaleDateString(dateLoc)} ${d.toLocaleTimeString(dateLoc, {hour: '2-digit', minute:'2-digit'})}`;
+    idopontSzoveg = `${d.toLocaleDateString(dateLoc)} ${d.toLocaleTimeString(dateLoc, {hour: '2-digit', minute:'2-digit'})}`;
   }
 
   const hivasGombHtml = tisztitottTelefon 
@@ -550,9 +640,9 @@ function createReportCardHtml(id, adat) {
 
   let terkepLinkSzoveg = t.openMapLink;
   if (adat.cim) {
-    terkepLinkSzoveg = `📍 ${escapeHtml(adat.cim)}`;
+    terkepLinkSzoveg = escapeHtml(adat.cim);
   } else if (adat.megye && adat.megye !== "Ismeretlen") {
-    terkepLinkSzoveg = `📍 ${escapeHtml(adat.megye)}`;
+    terkepLinkSzoveg = escapeHtml(adat.megye);
   }
 
   const reportLat = adat.lat;
@@ -593,7 +683,7 @@ function createReportCardHtml(id, adat) {
         </div>
         <div class="report-body">
           ${kepHtml}
-          <p style="margin:4px 0;">📝 ${tisztitottMegjegyzes || t.noNotes}</p>
+          <p style="margin:4px 0;">${tisztitottMegjegyzes || t.noNotes}</p>
           ${terKepGombHtml}
           ${idopontSzoveg ? `<p style="font-size:11px; color:#94a3b8; margin-top:4px;">${idopontSzoveg}</p>` : ''}
           ${hivasGombHtml}
@@ -620,21 +710,20 @@ window.shareReportById = function(docId, event) {
   const rLon = adat.lon || adat.lng;
   let terKepLink = (rLat && rLon) ? `https://www.google.com/maps?q=${rLat},${rLon}` : 'Nincs megadva';
   
-  const megosztandoSzoveg = `🚨 ÁLLATMENTÉS BEJELENTÉS!\n\n🐾 Állat: ${adat.fajta || adat.allatFajta || 'Állat'}\n📝 Leírás: ${adat.megjegyzes || adat.helyszinLeiras || 'Nincs külön megjegyzés'}\n📞 Kapcsolat: ${adat.telefon || adat.bejelentoTelefon || 'Nincs megadva'}\n📍 Pontos helyszín (Térkép): ${terKepLink}`;
+  const megosztandoSzoveg = `ÁLLATMENTÉS BEJELENTÉS\n\nÁllat: ${adat.fajta || adat.allatFajta || 'Állat'}\nLeírás: ${adat.megjegyzes || adat.helyszinLeiras || 'Nincs külön megjegyzés'}\nKapcsolat: ${adat.telefon || adat.bejelentoTelefon || 'Nincs megadva'}\nPontos helyszín: ${terKepLink}`;
 
   if (navigator.share) {
     navigator.share({
-      title: '🚨 Állatmentő Bejelentés',
+      title: 'Állatmentő Bejelentés',
       text: megosztandoSzoveg
     }).catch(() => console.log("Megosztás megszakítva"));
   } else {
     navigator.clipboard.writeText(megosztandoSzoveg);
-    alert("📋 A bejelentés adatai és a Google Maps helyszín linkje másolva a vágólapra!");
+    alert("A bejelentés adatai és a Google Maps helyszín linkje másolva a vágólapra.");
     window.open('https://www.facebook.com/', '_blank');
   }
 };
 
-// Védett backend API hívó segédfüggvény
 async function updateReportStatusOnServer(reportId, newStatus) {
   const user = firebase.auth().currentUser;
   if (!user) return false;
@@ -669,12 +758,12 @@ function getStatusButtonHtml(id, statusz, vallaloId) {
     if (isVerifiedRescuer) {
       return `
         <div class="status-action-box" data-action-id="${id}">
-          <button type="button" class="report-action-btn btn-action-take" onclick="changeStatus('${id}', 'folyamatban', event)">🐾 ${t.btnTake}</button>
+          <button type="button" class="report-action-btn btn-action-take" onclick="changeStatus('${id}', 'folyamatban', event)">${t.btnTake}</button>
         </div>`;
     }
     return `
       <p style="font-size:11px; color:#64748b; margin-top:6px; text-align:center;">
-        🛡️ <i>Csak hitelesített mentők vállalhatják el</i>
+        <i>Csak hitelesített mentők vállalhatják el</i>
       </p>`;
   } else if (statusz === "folyamatban") {
     if (isVerifiedRescuer && (vallaloId === activeUid || currentUserProfile.role === 'super_admin')) {
@@ -694,7 +783,6 @@ function getStatusButtonHtml(id, statusz, vallaloId) {
   }
 }
 
-// Megoldás űrlap megjelenítése szövegmezővel ÉS lezárási fotó csatolóval
 window.showResolveInput = function(docId, event) {
   if (event) { event.preventDefault(); event.stopPropagation(); }
   const t = translations[currentLang];
@@ -712,7 +800,7 @@ window.showResolveInput = function(docId, event) {
         <div style="margin: 10px 0;">
           <input type="file" id="resolvePhotoInput_${docId}" accept="image/*" style="display: none;" onchange="handleResolvePhotoSelected('${docId}')">
           <label for="resolvePhotoInput_${docId}" id="resolvePhotoLabel_${docId}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; background: #e2e8f0; color: #334155; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px dashed #94a3b8;">
-            📷 Lezárási fotó kiválasztása
+            Lezárási fotó kiválasztása
           </label>
         </div>
 
@@ -727,12 +815,11 @@ window.showResolveInput = function(docId, event) {
   }
 };
 
-// Visszajelzés fotó kiválasztásakor
 window.handleResolvePhotoSelected = function(docId) {
   const fileInput = document.getElementById(`resolvePhotoInput_${docId}`);
   const label = document.getElementById(`resolvePhotoLabel_${docId}`);
   if (fileInput && fileInput.files && fileInput.files[0] && label) {
-    label.innerHTML = `✅ Fotó csatolva: <b>${escapeHtml(fileInput.files[0].name)}</b>`;
+    label.innerHTML = `Fotó csatolva: <b>${escapeHtml(fileInput.files[0].name)}</b>`;
     label.style.background = '#dcfce7';
     label.style.color = '#15803d';
     label.style.borderColor = '#86efac';
@@ -774,7 +861,7 @@ window.submitResolve = async function(docId, event) {
   }
 
   if (submitBtn) {
-    submitBtn.innerText = "⏳ Mentés folyamatban...";
+    submitBtn.innerText = "Mentés folyamatban...";
     submitBtn.disabled = true;
   }
 
@@ -782,7 +869,6 @@ window.submitResolve = async function(docId, event) {
   const photoFile = photoInput && photoInput.files ? photoInput.files[0] : null;
 
   try {
-    // 1. Fotó feltöltése ImgBB-re, ha van csatolva
     if (photoFile) {
       const formData = new FormData();
       formData.append("image", photoFile);
@@ -802,7 +888,6 @@ window.submitResolve = async function(docId, event) {
     const isVerifiedRescuer = currentUserProfile && 
       (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
 
-    // 2. Védett backend végpont frissítése
     if (isVerifiedRescuer) {
       const user = firebase.auth().currentUser;
       if (user) {
@@ -822,7 +907,6 @@ window.submitResolve = async function(docId, event) {
       }
     }
 
-    // 3. Firestore kliensoldali szinkronizáció
     await db.collection("bejelentesek").doc(docId).update({
       statusz: "megoldva",
       status: "megoldva",
@@ -831,7 +915,7 @@ window.submitResolve = async function(docId, event) {
       resolvedAt: resolvedTimestamp
     });
 
-    console.log("Ügy sikeresen lezárva zárójelentéssel és fotóval!");
+    console.log("Ügy sikeresen lezárva zárójelentéssel és fotóval.");
   } catch (error) {
     console.error("Hiba a lezárásnál:", error);
     alert("Nem sikerült lezárni az ügyet. Ellenőrizd a kapcsolatot!");
@@ -853,7 +937,7 @@ window.changeStatus = async function(docId, ujStatusz, event) {
     (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
 
   if (!user || !isVerifiedRescuer) {
-    alert('⚠️ Ezt a műveletet kizárólag ellenőrzött mentők hajthatják végre! Kérlek, jelentkezz be.');
+    alert('Ezt a műveletet kizárólag ellenőrzött mentők hajthatják végre. Kérlek, jelentkezz be.');
     return;
   }
 
@@ -875,7 +959,7 @@ window.changeStatus = async function(docId, ujStatusz, event) {
   }
 
   db.collection("bejelentesek").doc(docId).update(updateData)
-    .then(() => console.log("Státusz frissítve!"))
+    .then(() => console.log("Státusz frissítve."))
     .catch((error) => console.error("Hiba:", error));
 };
 
@@ -929,7 +1013,7 @@ window.deleteReport = function(docId, event) {
 
   db.collection("bejelentesek").doc(docId).delete()
     .then(() => {
-      console.log("Dokumentum törölve!");
+      console.log("Dokumentum törölve.");
       const sajatLista = document.getElementById("sajatUgyekLista");
       if (sajatLista && sajatLista.children.length === 0) {
         sajatLista.innerHTML = `<p style="color: #64748b;">${t.noMyCases}</p>`;
@@ -943,7 +1027,7 @@ let sajatUgyekUnsubscribe = null;
 function betoltSajatUgyek() {
   const sajatLista = document.getElementById("sajatUgyekLista");
   const t = translations[currentLang];
-  sajatLista.innerHTML = '<p style="color: #64748b;">⏳ Betöltés...</p>';
+  sajatLista.innerHTML = '<p style="color: #64748b;">Betöltés...</p>';
 
   if (sajatUgyekUnsubscribe) sajatUgyekUnsubscribe();
 
@@ -1032,7 +1116,7 @@ fotoInput.addEventListener("change", function() {
       previewImage.src = e.target.result;
       imagePreviewBox.style.display = "block";
       
-      uploadIcon.innerText = "✅";
+      if (uploadIcon) uploadIcon.innerText = "";
       uploadLabelText.innerText = t.uploadSuccess;
       uploadLabel.classList.add("uploaded");
     };
@@ -1049,7 +1133,7 @@ removePhotoBtn.addEventListener("click", function() {
   previewImage.src = "";
   imagePreviewBox.style.display = "none";
   
-  uploadIcon.innerText = "📷";
+  if (uploadIcon) uploadIcon.innerText = "";
   uploadLabelText.innerText = t.uploadPhotoText;
   uploadLabel.classList.remove("uploaded");
 });
@@ -1095,7 +1179,7 @@ closeModalBtn.addEventListener("click", function(e) {
 });
 
 function betoltSzervezetek(kivalasztottMegye) {
-  szervezetekLista.innerHTML = '<p style="color: #64748b;">⏳ Szervezetek betöltése...</p>';
+  szervezetekLista.innerHTML = '<p style="color: #64748b;">Szervezetek betöltése...</p>';
 
   let lekerdezes = db.collection("szervezetek");
   if (kivalasztottMegye !== "Összes") {
@@ -1145,20 +1229,20 @@ function szurEsKirajzolSzervezetek() {
     let ikonosNev = szervezet.nev;
 
     if (szervezet.kategoria === "orvos") {
-      kategoriaClass = "orvos"; ikonosNev = "🏥 " + szervezet.nev;
+      kategoriaClass = "orvos"; ikonosNev = szervezet.nev;
     } else if (szervezet.kategoria === "hatosag") {
-      kategoriaClass = "hatosag"; ikonosNev = "🏛️ " + szervezet.nev;
+      kategoriaClass = "hatosag"; ikonosNev = szervezet.nev;
     } else if (szervezet.kategoria === "vad") {
-      kategoriaClass = "vad"; ikonosNev = "🦅 " + szervezet.nev;
+      kategoriaClass = "vad"; ikonosNev = szervezet.nev;
     } else {
-      kategoriaClass = "menhely"; ikonosNev = "🐕 " + szervezet.nev;
+      kategoriaClass = "menhely"; ikonosNev = szervezet.nev;
     }
 
     szervezetekLista.innerHTML += `
       <div class="info-card ${kategoriaClass}">
         <h3>${ikonosNev}</h3>
-        <p>📍 ${szervezet.cim || szervezet.megye}</p>
-        <p>📞 ${szervezet.telefon}</p>
+        <p>${szervezet.cim || szervezet.megye}</p>
+        <p>${szervezet.telefon}</p>
         <a href="tel:${szervezet.telefon}" class="call-btn">${t.callOrgBtn}</a>
       </div>
     `;
@@ -1305,7 +1389,7 @@ document.getElementById("mapSearchBtn").addEventListener("click", async function
   }
 
   eredmenyDiv.innerHTML = t.searchSearching;
-  searchBtn.innerText = "⏳";
+  searchBtn.innerText = "Keresés...";
 
   try {
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=hu`);
@@ -1331,7 +1415,7 @@ document.getElementById("mapSearchBtn").addEventListener("click", async function
     eredmenyDiv.innerHTML = t.searchNetworkError;
   }
 
-  searchBtn.innerText = "🔍";
+  searchBtn.innerText = "Keresés";
 });
 
 document.getElementById("mapSearchInput").addEventListener("keypress", function(event) {
@@ -1346,10 +1430,9 @@ document.getElementById("tovabb1").addEventListener("click", function() {
   const btn = this;
   
   if (!kivalasztottKarty) {
-    const t = translations[currentLang];
     const eredetiSzoveg = btn.innerText;
 
-    btn.innerText = "⚠️ Válassz fajtát!";
+    btn.innerText = "Válassz fajtát!";
     btn.style.backgroundColor = "#ef4444";
     btn.style.borderColor = "#ef4444";
     btn.style.color = "#ffffff";
@@ -1401,7 +1484,7 @@ window.megnyitReszletek = function(docId) {
 
   const reszletKartyaBox = document.getElementById("reszletKartyaBox");
   if (reszletKartyaBox) {
-    reszletKartyaBox.innerHTML = '<p style="color: #64748b; font-size:13px;">⏳ Adatok betöltése...</p>';
+    reszletKartyaBox.innerHTML = '<p style="color: #64748b; font-size:13px;">Adatok betöltése...</p>';
   }
 
   if (kommentekUnsubscribe) kommentekUnsubscribe();
@@ -1416,9 +1499,9 @@ window.megnyitReszletek = function(docId) {
     const t = translations[currentLang];
     let terkepLinkSzoveg = t.openMapLink;
     if (adat.cim) {
-      terkepLinkSzoveg = `📍 ${escapeHtml(adat.cim)}`;
+      terkepLinkSzoveg = escapeHtml(adat.cim);
     } else if (adat.megye && adat.megye !== "Ismeretlen") {
-      terkepLinkSzoveg = `📍 ${escapeHtml(adat.megye)}`;
+      terkepLinkSzoveg = escapeHtml(adat.megye);
     }
 
     const rLat = adat.lat;
@@ -1453,14 +1536,14 @@ window.megnyitReszletek = function(docId) {
           const isBejelento = k.userId === adat.createrId;
           const isVallo = k.userId === adat.vallaloId || k.userId === adat.rescuerUid;
 
-          let szerepNev = "👥 Érdeklődő";
+          let szerepNev = "Érdeklődő";
           let szerepClass = "erdoklodo";
 
           if (isBejelento) {
-            szerepNev = "✍️ Bejelentő";
+            szerepNev = "Bejelentő";
             szerepClass = "bejelento";
           } else if (isVallo) {
-            szerepNev = "🚗 Mentő";
+            szerepNev = "Mentő";
             szerepClass = "mento";
           }
 
@@ -1496,12 +1579,12 @@ window.megnyitReszletek = function(docId) {
       if (!adat.vallaloId && !adat.rescuerUid) {
         chatInputKontener.innerHTML = `
           <div class="chat-disabled-hint">
-            ⏳ A közvetlen chat akkor nyílik meg, ha valaki elvállalja a mentést.
+            A közvetlen chat akkor nyílik meg, ha valaki elvállalja a mentést.
           </div>`;
       } else if (!isErintett) {
         chatInputKontener.innerHTML = `
           <div class="chat-disabled-hint">
-            🔒 A chat kizárólag a bejelentő és az elvállaló mentő számára elérhető.
+            A chat kizárólag a bejelentő és az elvállaló mentő számára elérhető.
           </div>`;
       } else {
         chatInputKontener.innerHTML = `
@@ -1607,7 +1690,7 @@ async function ujBejelentesKuldése() {
   if (!megjegyzes) {
     const eredetiSzoveg = submitBtn.innerText;
     
-    submitBtn.innerText = "⚠️ Írj leírást / megjegyzést!";
+    submitBtn.innerText = "Írj leírást / megjegyzést!";
     submitBtn.style.backgroundColor = "#ef4444";
     submitBtn.style.borderColor = "#ef4444";
     submitBtn.style.color = "#ffffff";
@@ -1626,7 +1709,7 @@ async function ujBejelentesKuldése() {
     return;
   }
 
-  submitBtn.innerText = "⏳ Feltöltés...";
+  submitBtn.innerText = "Feltöltés...";
   submitBtn.disabled = true;
   const kivalasztottKarty = document.querySelector(".karty.kivalasztva");
   const allatFajta = kivalasztottKarty ? kivalasztottKarty.dataset.fajta : "Nincs megadva";
@@ -1635,7 +1718,6 @@ async function ujBejelentesKuldése() {
   let fotoUrl = null;
 
   try {
-    // 1. Fotó feltöltése ImgBB-re (ha van csatolva)
     if (fajl) {
       const formData = new FormData();
       formData.append("image", fajl);
@@ -1652,7 +1734,7 @@ async function ujBejelentesKuldése() {
         throw new Error(result.error || "A kép feltöltése sikertelen.");
       }
     }
-    // 2. Fordított geokódolás (település & megye kinyerése)
+
     let mentettMegye = "Ismeretlen";
     let mentettCim = "";
     if (pontosLat && pontosLon) {
@@ -1676,7 +1758,6 @@ async function ujBejelentesKuldése() {
     const user = firebase.auth().currentUser;
     const activeUid = user ? user.uid : currentUserId;
 
-    // 3. Mentés és e-mail értesítés a backend szerveren keresztül
     const reportPayload = {
       fajta: allatFajta,
       allatFajta: allatFajta,
@@ -1705,7 +1786,7 @@ async function ujBejelentesKuldése() {
     }
 
     let terKepLink = (pontosLat && pontosLon) ? `https://www.google.com/maps?q=${pontosLat},${pontosLon}` : 'Nincs megadva';
-    const megosztandoSzoveg = `🚨 ÚJ ÁLLATMENTÉS BEJELENTÉS!\n\n🐾 Állat: ${allatFajta}\n📍 Megye: ${mentettMegye}\n📝 Leírás: ${megjegyzes || 'Nincs külön megjegyzés'}\n📞 Kapcsolat: ${telefon || 'Nincs megadva'}\n📍 Térkép link: ${terKepLink}`;
+    const megosztandoSzoveg = `ÁLLATMENTÉS BEJELENTÉS\n\nÁllat: ${allatFajta}\nMegye: ${mentettMegye}\nLeírás: ${megjegyzes || 'Nincs külön megjegyzés'}\nKapcsolat: ${telefon || 'Nincs megadva'}\nTérkép link: ${terKepLink}`;
 
     const t = translations[currentLang];
     let relevansUtmutatoHtml = "";
@@ -1713,54 +1794,53 @@ async function ujBejelentesKuldése() {
     if (allatFajta === "Kutya") {
       relevansUtmutatoHtml = `
         <div class="guide-card" style="margin-top: 15px; text-align: left;">
-          <div class="guide-header"><span class="guide-icon">🐶</span><h3>${t.g4Title}</h3></div>
+          <div class="guide-header"><h3>${t.g4Title}</h3></div>
           <div class="guide-body">${t.g4Body}</div>
         </div>`;
     } else if (allatFajta === "Macska") {
       relevansUtmutatoHtml = `
         <div class="guide-card" style="margin-top: 15px; text-align: left;">
-          <div class="guide-header"><span class="guide-icon">🐱</span><h3>${t.g3Title}</h3></div>
+          <div class="guide-header"><h3>${t.g3Title}</h3></div>
           <div class="guide-body">${t.g3Body}</div>
         </div>`;
     } else if (allatFajta === "Vadállat") {
       relevansUtmutatoHtml = `
         <div class="guide-card" style="margin-top: 15px; text-align: left;">
-          <div class="guide-header"><span class="guide-icon">🦅</span><h3>${t.g2Title}</h3></div>
+          <div class="guide-header"><h3>${t.g2Title}</h3></div>
           <div class="guide-body">${t.g2Body}</div>
         </div>
         <div class="guide-card" style="margin-top: 10px; text-align: left;">
-          <div class="guide-header"><span class="guide-icon">🦊</span><h3>${t.g6Title}</h3></div>
+          <div class="guide-header"><h3>${t.g6Title}</h3></div>
           <div class="guide-body">${t.g6Body}</div>
         </div>`;
     } else {
       relevansUtmutatoHtml = `
         <div class="guide-card" style="margin-top: 15px; text-align: left;">
-          <div class="guide-header"><span class="guide-icon">🦔</span><h3>${t.g5Title}</h3></div>
+          <div class="guide-header"><h3>${t.g5Title}</h3></div>
           <div class="guide-body">${t.g5Body}</div>
         </div>`;
     }
 
     step3.innerHTML = `
       <div style="padding: 10px 0; text-align: center;">
-        <span style="font-size: 48px;">🎉</span>
         <h2>Köszönjük! / Thank you!</h2>
         <p style="font-size: 14px; margin-bottom: 15px;">A bejelentésed elmentve a(z) <b>${mentettMegye}</b> régióhoz.</p>
 
         <div class="success-share-box">
-          <p class="share-box-title">📢 Segíts, hogy még gyorsabban kiérjen a segítség!</p>
+          <p class="share-box-title">Segíts, hogy még gyorsabban kiérjen a segítség!</p>
           <p class="share-box-desc">Oszd meg a bejelentést Facebook csoportokban, Messengeren vagy Viberen:</p>
           
           <button type="button" id="shareBtn" class="btn btn-primary" style="background: #1877f2; border: none; font-size: 14px; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            📲 Bejelentés Megosztása / Share Report
+            Bejelentés Megosztása / Share Report
           </button>
         </div>
 
         <div style="margin-top: 15px;">
-          <h3 style="font-size: 14px; text-align: left; color: var(--text-main); margin-bottom: 6px;">💡 Teendők a mentők kiérkezéséig:</h3>
+          <h3 style="font-size: 14px; text-align: left; color: var(--text-main); margin-bottom: 6px;">Teendők a mentők kiérkezéséig:</h3>
           ${relevansUtmutatoHtml}
         </div>
 
-        <button class="btn btn-outline" style="margin-top: 15px;" onclick="location.reload()">← Vissza a főmenübe</button>
+        <button class="btn btn-outline" style="margin-top: 15px;" onclick="location.reload()">Vissza a főmenübe</button>
       </div>
     `;
 
@@ -1770,7 +1850,7 @@ async function ujBejelentesKuldése() {
         if (navigator.share) {
           try {
             await navigator.share({
-              title: '🚨 Állatmentő Bejelentés',
+              title: 'Állatmentő Bejelentés',
               text: megosztandoSzoveg
             });
           } catch (err) {
@@ -1778,7 +1858,7 @@ async function ujBejelentesKuldése() {
           }
         } else {
           navigator.clipboard.writeText(megosztandoSzoveg);
-          alert("📋 A bejelentés adatai másolva a vágólapra!");
+          alert("A bejelentés adatai másolva a vágólapra.");
           window.open('https://www.facebook.com/', '_blank');
         }
       });
@@ -1787,7 +1867,7 @@ async function ujBejelentesKuldése() {
   } catch (error) {
     console.error("Hiba: ", error);
     alert("Nem sikerült a beküldés. Ellenőrizd a kapcsolatot!");
-    submitBtn.innerText = "🚨 BEJELENTÉS KÜLDÉSE";
+    submitBtn.innerText = "BEJELENTÉS KÜLDÉSE";
     submitBtn.disabled = false;
   }
 }
@@ -1827,7 +1907,7 @@ if (authToggleLink) {
   authToggleLink.addEventListener('click', (e) => {
     e.preventDefault();
     isRegisterMode = !isRegisterMode;
-    document.getElementById('authModalTitle').textContent = isRegisterMode ? '📝 Mentő Regisztráció' : '🛡️ Mentői Belépés';
+    document.getElementById('authModalTitle').textContent = isRegisterMode ? 'Mentő Regisztráció' : 'Mentői Belépés';
     authSubmitBtn.textContent = isRegisterMode ? 'Regisztráció beküldése' : 'Bejelentkezés';
     authToggleText.textContent = isRegisterMode ? 'Már van fiókod?' : 'Még nincs mentői fiókod?';
     authToggleLink.textContent = isRegisterMode ? 'Bejelentkezés' : 'Regisztráció';
@@ -1835,7 +1915,6 @@ if (authToggleLink) {
   });
 }
 
-// Űrlap beküldése (Login / Regisztráció)
 if (authForm) {
   authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1848,10 +1927,8 @@ if (authForm) {
 
     try {
       if (isRegisterMode) {
-        // 1. Regisztráció létrehozása Firebase Auth-ban
         await firebase.auth().createUserWithEmailAndPassword(email, password);
 
-        // 2. Megerősítő e-mail kiküldése a biztonságos backend végponton keresztül (Resend)
         const sendRes = await fetch(`${BACKEND_URL}/auth/send-verification`, {
           method: 'POST',
           headers: {
@@ -1865,17 +1942,14 @@ if (authForm) {
           throw new Error(sendData.error || 'A megerősítő e-mail elküldése sikertelen.');
         }
 
-        // 3. Kijelentkeztetés a sikeres aktiválásig
         await firebase.auth().signOut();
 
         alert('Sikeres regisztráció! Küldtünk egy megerősítő linket az e-mail címedre. Kérlek, kattints rá a fiókod aktiválásához!');
         authModal.style.display = 'none';
         authForm.reset();
       } else {
-        // Bejelentkezés
         const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
 
-        // Ellenőrizzük, hogy megerősítette-e az e-mail címét
         if (!userCredential.user.emailVerified) {
           authErrorBox.innerHTML = `
             Figyelem: Az e-mail címed még nincs megerősítve!<br>
@@ -1885,7 +1959,6 @@ if (authForm) {
           `;
           authErrorBox.style.display = 'block';
 
-          // Újraküldés gomb eseménykezelője a backend végponttal
           document.getElementById('resendVerificationBtn').addEventListener('click', async () => {
             try {
               const resendRes = await fetch(`${BACKEND_URL}/auth/send-verification`, {
@@ -1924,7 +1997,6 @@ if (authForm) {
   });
 }
 
-// Kijelentkezés eseménykezelő
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -1933,7 +2005,6 @@ if (logoutBtn) {
       currentUserProfile = null;
       updateAuthUI(null);
 
-      // Nézetek visszaállítása a főmenüre
       if (stepAdmin) stepAdmin.style.display = 'none';
       if (stepMap) stepMap.style.display = 'none';
       if (stepSajat) stepSajat.style.display = 'none';
@@ -1950,7 +2021,6 @@ if (logoutBtn) {
   });
 }
 
-// Felhasználó állapotfigyelője
 firebase.auth().onAuthStateChanged(async (user) => {
   if (user && user.emailVerified) {
     try {
@@ -2067,7 +2137,6 @@ async function loadAdminUsers() {
 
       let actionBtns = '';
 
-      // Szerepkör váltó gomb (csak nem-adminoknak)
       if (role !== 'super_admin') {
         if (role === 'verified_rescuer') {
           actionBtns += `<button type="button" onclick="setRoleViaAdmin('${uid}', 'public')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #ef4444; border-color: #fca5a5;">Mentő jog megvonása</button>`;
@@ -2076,7 +2145,6 @@ async function loadAdminUsers() {
         }
       }
 
-      // Törlés gomb minden más fiókhoz
       if (!isSelf) {
         actionBtns += `
           <button type="button" onclick="deleteUserViaAdmin('${uid}', '${escapeHtml(userEmail)}')" class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; color: #dc2626; border-color: #fca5a5; margin-left: 8px;">
@@ -2106,7 +2174,6 @@ async function loadAdminUsers() {
   }
 }
 
-// Rang módosítása az admin felületről
 window.setRoleViaAdmin = async function(targetUid, newRole) {
   const user = firebase.auth().currentUser;
   if (!user) return;
@@ -2134,7 +2201,6 @@ window.setRoleViaAdmin = async function(targetUid, newRole) {
   }
 };
 
-// Felhasználó végleges törlése az admin felületről
 window.deleteUserViaAdmin = async function(targetUid, userEmail) {
   const megerosites = confirm(`Biztosan véglegesen törölni szeretnéd a(z) ${userEmail || targetUid} fiókot a rendszerből?`);
   if (!megerosites) return;
@@ -2156,7 +2222,7 @@ window.deleteUserViaAdmin = async function(targetUid, userEmail) {
     try {
       data = JSON.parse(text);
     } catch (e) {
-      throw new Error(`A szerver nem megfelelő formátumban válaszolt (Státusz: ${res.status}). Lehet, hogy a backend még frissül.`);
+      throw new Error(`A szerver nem megfelelő formátumban válaszolt (Státusz: ${res.status}).`);
     }
 
     if (!res.ok || !data.success) {

@@ -7,6 +7,8 @@
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- Panzoom könyvtár -->
@@ -19,6 +21,7 @@
 
   <!-- Leaflet térkép motor -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 </head>
 <body>
 
@@ -112,6 +115,12 @@
   <div class="view-toggle">
     <button id="toggleMapBtn" class="toggle-btn active">🗺️ Térkép</button>
     <button id="toggleListBtn" class="toggle-btn">📋 Lista nézet</button>
+  </div>
+  <div id="mapFilterBar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+  <button type="button" class="btn btn-filter active" data-filter="all" onclick="filterMapMarkers('all')">Mind</button>
+  <button type="button" class="btn btn-filter" data-filter="open" onclick="filterMapMarkers('open')">Új / Függőben</button>
+  <button type="button" class="btn btn-filter" data-filter="in_progress" onclick="filterMapMarkers('in_progress')">Folyamatban</button>
+  <button type="button" class="btn btn-filter" data-filter="resolved" onclick="filterMapMarkers('resolved')">Megoldva</button>
   </div>
 
   <div id="mainMap" class="map-box"></div>
