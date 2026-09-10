@@ -367,6 +367,7 @@ const db = firebase.firestore();
 const imgbbApiKey = "5274f0761f88a38f610c030a7de51e0f"; 
 
 let currentUserId = localStorage.getItem("allatmento_user_id");
+let currentUserProfile = null;
 if (!currentUserId) {
   currentUserId = "user_" + Math.random().toString(36).substr(2, 9);
   localStorage.setItem("allatmento_user_id", currentUserId);
@@ -489,9 +490,19 @@ function frissitTerkepMarkerek() {
         ? t.statusNewBadge 
         : (statusz === 'folyamatban' ? t.statusInProgBadge : t.statusSolved);
 
-      const telefonSorHtml = (adat.telefon || adat.bejelentoTelefon) 
-        ? `Telefonszám: ${adat.telefon || adat.bejelentoTelefon}` 
-        : t.noPhone;
+      const isVerifiedRescuer = currentUserProfile && 
+        (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
+      const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
+      const rawPhone = adat.telefon || adat.bejelentoTelefon;
+
+      let telefonSorHtml = t.noPhone;
+      if (rawPhone) {
+        if (isVerifiedRescuer || isCreator) {
+          telefonSorHtml = `Telefonszám: <a href="tel:${escapeHtml(rawPhone)}" style="color:#10b981; font-weight:bold;">${escapeHtml(rawPhone)}</a>`;
+        } else {
+          telefonSorHtml = `🔒 <i>Telefonszám: Csak mentőknek</i>`;
+        }
+      }
 
       const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${reportLat},${reportLon}`;
 
@@ -642,9 +653,20 @@ function createReportCardHtml(id, adat) {
     idopontSzoveg = `${d.toLocaleDateString(dateLoc)} ${d.toLocaleTimeString(dateLoc, {hour: '2-digit', minute:'2-digit'})}`;
   }
 
-  const hivasGombHtml = tisztitottTelefon 
-    ? `<a href="tel:${tisztitottTelefon}" onclick="event.stopPropagation();" class="report-action-btn" style="background:#10b981; color:white; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; margin-top:8px; font-weight:bold;">${t.callBtn} (${tisztitottTelefon})</a>`
-    : `<p style="font-size:12px; color:#64748b; margin:4px 0;">${t.noPhone}</p>`;
+  const isVerifiedRescuer = currentUserProfile && 
+    (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
+  const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
+
+  let hivasGombHtml = '';
+  if (tisztitottTelefon) {
+    if (isVerifiedRescuer || isCreator) {
+      hivasGombHtml = `<a href="tel:${tisztitottTelefon}" onclick="event.stopPropagation();" class="report-action-btn" style="background:#10b981; color:white; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; margin-top:8px; font-weight:bold;">${t.callBtn} (${tisztitottTelefon})</a>`;
+    } else {
+      hivasGombHtml = `<p style="font-size:12px; color:#64748b; margin:6px 0;">🔒 <i>Telefonszám: Csak bejelentkezett mentőknek</i></p>`;
+    }
+  } else {
+    hivasGombHtml = `<p style="font-size:12px; color:#64748b; margin:4px 0;">${t.noPhone}</p>`;
+  }
 
   let terkepLinkSzoveg = t.openMapLink;
   if (adat.cim) {
@@ -674,7 +696,6 @@ function createReportCardHtml(id, adat) {
     `;
   }
 
-  const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
   const torlesGombHtml = isCreator 
     ? `
       <div class="delete-box-container" style="margin-top:8px;">
@@ -718,7 +739,13 @@ window.shareReportById = function(docId, event) {
   const rLon = adat.lon || adat.lng;
   let terKepLink = (rLat && rLon) ? `https://www.google.com/maps?q=${rLat},${rLon}` : 'Nincs megadva';
   
-  const megosztandoSzoveg = `ÁLLATMENTÉS BEJELENTÉS\n\nÁllat: ${adat.fajta || adat.allatFajta || 'Állat'}\nLeírás: ${adat.megjegyzes || adat.helyszinLeiras || 'Nincs külön megjegyzés'}\nKapcsolat: ${adat.telefon || adat.bejelentoTelefon || 'Nincs megadva'}\nPontos helyszín: ${terKepLink}`;
+  const isVerifiedRescuer = currentUserProfile && 
+    (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
+  const megosztottTelefon = isVerifiedRescuer 
+    ? (adat.telefon || adat.bejelentoTelefon || 'Nincs megadva') 
+    : 'Csak regisztrált mentők számára érhető el';
+
+  const megosztandoSzoveg = `ÁLLATMENTÉS BEJELENTÉS\n\nÁllat: ${adat.fajta || adat.allatFajta || 'Állat'}\nLeírás: ${adat.megjegyzes || adat.helyszinLeiras || 'Nincs külön megjegyzés'}\nKapcsolat: ${megosztottTelefon}\nPontos helyszín: ${terKepLink}`;
 
   if (navigator.share) {
     navigator.share({
@@ -1198,10 +1225,23 @@ function szurEsKirajzolSzervezetek() {
     const nev = (szervezet.nev || "").toLowerCase();
     const cim = (szervezet.cim || "").toLowerCase();
     const megye = (szervezet.megye || "").toLowerCase();
-    const kategoria = szervezet.kategoria || "";
+    const kategoria = (szervezet.kategoria || "").toLowerCase().trim();
+    const valasztott = kivalasztottKat.toLowerCase().trim();
 
     const matcheliKeresest = nev.includes(keresoSzo) || cim.includes(keresoSzo) || megye.includes(keresoSzo);
-    let matcheliKategoriat = (kivalasztottKat === "Összes") || (kategoria === kivalasztottKat);
+    
+    let matcheliKategoriat = false;
+    if (valasztott === "összes" || valasztott === "osszes") {
+      matcheliKategoriat = true;
+    } else if (valasztott === "menhely") {
+      // Minden menhelynek számít, ami explicit menhely/egyesület, vagy nem orvos/hatóság/vad
+      matcheliKategoriat = kategoria.includes("menhely") || 
+                           kategoria.includes("egyesulet") || 
+                           kategoria.includes("alapitvany") ||
+                           (!kategoria.includes("orvos") && !kategoria.includes("hatosag") && !kategoria.includes("vad"));
+    } else {
+      matcheliKategoriat = kategoria.includes(valasztott);
+    }
 
     return matcheliKeresest && matcheliKategoriat;
   });
@@ -1512,11 +1552,25 @@ window.megnyitReszletek = function(docId) {
       ? `<a href="https://www.google.com/maps?q=${rLat},${rLon}" target="_blank" onclick="event.stopPropagation();" style="font-size:12px; color:#2563eb; text-decoration:underline; display:inline-block; width: fit-content; margin-top:4px; font-weight: 500;">${terkepLinkSzoveg}</a>`
       : '';
 
+    const isVerifiedRescuer = currentUserProfile && 
+      (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
+    const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
+    const nyersTelefon = adat.telefon || adat.bejelentoTelefon;
+
+    let telefonReszletHtml = 'Nincs megadva';
+    if (nyersTelefon) {
+      if (isVerifiedRescuer || isCreator) {
+        telefonReszletHtml = `<a href="tel:${escapeHtml(nyersTelefon)}" style="color:#10b981; font-weight:bold;">${escapeHtml(nyersTelefon)}</a>`;
+      } else {
+        telefonReszletHtml = '🔒 <i>Csak bejelentkezett mentők láthatják</i>';
+      }
+    }
+
     if (reszletKartyaBox) {
       reszletKartyaBox.innerHTML = `
         <div class="reszlet-info-box">
           <p style="margin: 0 0 4px 0;"><b>Leírás:</b> ${escapeHtml(adat.megjegyzes || adat.helyszinLeiras) || 'Nincs megjegyzés'}</p>
-          <p style="margin: 0;"><b>Telefon:</b> ${escapeHtml(adat.telefon || adat.bejelentoTelefon) || 'Nincs megadva'}</p>
+          <p style="margin: 0;"><b>Telefon:</b> ${telefonReszletHtml}</p>
           ${terKepGombHtml}
         </div>
       `;
@@ -1877,7 +1931,6 @@ async function ujBejelentesKuldése() {
 // ================= HITELESÍTÉS & BACKEND ÖSSZEKÖTÉS =================
 const BACKEND_URL = 'https://allatmento-backend.onrender.com/api';
 let isRegisterMode = false;
-let currentUserProfile = null;
 
 const authModal = document.getElementById('authModal');
 const openAuthModalBtn = document.getElementById('openAuthModalBtn');
