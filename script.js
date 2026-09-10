@@ -496,9 +496,11 @@ function frissitTerkepMarkerek() {
       const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
       const rawPhone = adat.telefon || adat.bejelentoTelefon;
 
+      const vanTelefon = Boolean(adat.hasPhone || rawPhone);
+
       let telefonSorHtml = t.noPhone;
-      if (rawPhone) {
-        if (isVerifiedRescuer || isCreator) {
+      if (vanTelefon) {
+        if ((isVerifiedRescuer || isCreator) && rawPhone) {
           telefonSorHtml = `Telefonszám: <a href="tel:${escapeHtml(rawPhone)}" style="color:#10b981; font-weight:bold;">${escapeHtml(rawPhone)}</a>`;
         } else {
           telefonSorHtml = `🔒 <i>Telefonszám: Csak mentőknek</i>`;
@@ -668,8 +670,10 @@ function createReportCardHtml(id, adat) {
   const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
 
   let hivasGombHtml = '';
-  if (tisztitottTelefon) {
-    if (isVerifiedRescuer || isCreator) {
+  const vanTelefon = Boolean(adat.hasPhone || tisztitottTelefon);
+
+  if (vanTelefon) {
+    if ((isVerifiedRescuer || isCreator) && tisztitottTelefon) {
       hivasGombHtml = `<a href="tel:${tisztitottTelefon}" onclick="event.stopPropagation();" class="report-action-btn" style="background:#10b981; color:white; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; margin-top:8px; font-weight:bold;">${t.callBtn} (${tisztitottTelefon})</a>`;
     } else {
       hivasGombHtml = `<p style="font-size:12px; color:#64748b; margin:6px 0;">🔒 <i>Telefonszám: Csak bejelentkezett mentőknek</i></p>`;
