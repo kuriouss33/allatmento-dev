@@ -342,6 +342,7 @@ if (langToggleBtn) {
 
 document.addEventListener("DOMContentLoaded", () => {
   updateLanguage(currentLang);
+  betoltBejelentesekSzerverrol();
 });
 
 function escapeHtml(text) {
@@ -548,18 +549,27 @@ window.filterMapMarkers = function(filterStatus) {
 };
 
 // Firestore adatbázis valós idejű figyelése
-db.collection("bejelentesek").onSnapshot((snapshot) => {
-  osszesBejelentesMemoria = [];
+async function betoltBejelentesekSzerverrol() {
+  try {
+    const headers = {};
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
-  snapshot.docs.forEach((doc) => {
-    osszesBejelentesMemoria.push({ id: doc.id, adat: doc.data() });
-  });
+    const res = await fetch(`${BACKEND_URL}/reports`, { headers });
+    const data = await res.json();
 
-  frissitTerkepMarkerek();
-  szurEsKirajzolBejelentesek();
-}, (error) => {
-  console.error("Firestore hiba a bejelentések betöltésekor:", error);
-});
+    if (data.success && data.reports) {
+      osszesBejelentesMemoria = data.reports;
+      frissitTerkepMarkerek();
+      szurEsKirajzolBejelentesek();
+    }
+  } catch (error) {
+    console.error("Hiba a védett bejelentések lekérésekor:", error);
+  }
+}
 
 function szurEsKirajzolBejelentesek() {
   const bejelentesekLista = document.getElementById("bejelentesekLista");
@@ -696,7 +706,10 @@ function createReportCardHtml(id, adat) {
     `;
   }
 
-  const torlesGombHtml = isCreator 
+  const isSuperAdmin = currentUserProfile && currentUserProfile.role === 'super_admin';
+  const canDelete = isCreator || isSuperAdmin;
+
+  const torlesGombHtml = canDelete 
     ? `
       <div class="delete-box-container" style="margin-top:8px;">
         <button type="button" class="report-action-btn btn-delete" onclick="showDeleteConfirm('${id}', event)">${t.deleteBtn}</button>
@@ -1036,7 +1049,7 @@ window.cancelDelete = function(docId, event) {
   }
 };
 
-window.deleteReport = function(docId, event) {
+window.deleteReport = async function(docId, event) {
   if (event) {
     event.preventDefault();
     event.stopPropagation();
@@ -1046,15 +1059,28 @@ window.deleteReport = function(docId, event) {
   const elemek = document.querySelectorAll(`[data-report-id="${docId}"]`);
   elemek.forEach(elem => elem.remove());
 
-  db.collection("bejelentesek").doc(docId).delete()
-    .then(() => {
-      console.log("Dokumentum törölve.");
-      const sajatLista = document.getElementById("sajatUgyekLista");
-      if (sajatLista && sajatLista.children.length === 0) {
-        sajatLista.innerHTML = `<p style="color: #64748b;">${t.noMyCases}</p>`;
-      }
-    })
-    .catch((error) => console.error("Hiba:", error));
+  try {
+    await db.collection("bejelentesek").doc(docId).delete();
+    console.log("Dokumentum sikeresen törölve.");
+
+    // Törlés a memóriából és térképről
+    osszesBejelentesMemoria = osszesBejelentesMemoria.filter(item => item.id !== docId);
+    if (activeMarkers[docId] && markerClusterGroup) {
+      markerClusterGroup.removeLayer(activeMarkers[docId]);
+      delete activeMarkers[docId];
+    }
+
+    const sajatLista = document.getElementById("sajatUgyekLista");
+    if (sajatLista && sajatLista.children.length === 0) {
+      sajatLista.innerHTML = `<p style="color: #64748b;">${t.noMyCases}</p>`;
+    }
+
+    // Backend szinkronizáció
+    await betoltBejelentesekSzerverrol();
+  } catch (error) {
+    console.error("Hiba a törlés során:", error);
+    alert("Nem sikerült törölni a bejelentést: " + error.message);
+  }
 };
 
 let sajatUgyekUnsubscribe = null;
@@ -1566,12 +1592,21 @@ window.megnyitReszletek = function(docId) {
       }
     }
 
+    const isSuperAdmin = currentUserProfile && currentUserProfile.role === 'super_admin';
+    const canDeleteReszlet = isCreator || isSuperAdmin;
+    const reszletTorlesHtml = canDeleteReszlet
+      ? `<div class="delete-box-container" style="margin-top:8px;">
+           <button type="button" class="report-action-btn btn-delete" onclick="showDeleteConfirm('${docId}', event)">${t.deleteBtn}</button>
+         </div>`
+      : '';
+
     if (reszletKartyaBox) {
       reszletKartyaBox.innerHTML = `
         <div class="reszlet-info-box">
           <p style="margin: 0 0 4px 0;"><b>Leírás:</b> ${escapeHtml(adat.megjegyzes || adat.helyszinLeiras) || 'Nincs megjegyzés'}</p>
           <p style="margin: 0;"><b>Telefon:</b> ${telefonReszletHtml}</p>
           ${terKepGombHtml}
+          ${reszletTorlesHtml}
         </div>
       `;
     }
@@ -2071,6 +2106,7 @@ if (logoutBtn) {
       step0.style.display = 'block';
 
       if (typeof szurEsKirajzolBejelentesek === 'function') szurEsKirajzolBejelentesek();
+      await betoltBejelentesekSzerverrol();
     } catch (err) {
       console.error('Hiba kijelentkezéskor:', err);
     }
@@ -2101,6 +2137,10 @@ firebase.auth().onAuthStateChanged(async (user) => {
     currentUserProfile = null;
     updateAuthUI(null);
   }
+  
+  // Itt hívjuk meg újra a szervert:
+  betoltBejelentesekSzerverrol();
+
   if (typeof szurEsKirajzolBejelentesek === "function") szurEsKirajzolBejelentesek();
 });
 
