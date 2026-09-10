@@ -240,6 +240,14 @@
     <button id="manualLocationBtn" class="btn btn-outline" type="button">🗺️ Helyszín kiválasztása a térképen</button>
   </div>
 
+  <!-- BIZTONSÁGI TÁJÉKOZTATÓ DOBOZ -->
+  <div id="locationPrivacyNotice" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; text-align: left;">
+    <span style="font-size: 16px; line-height: 1;">🛡️</span>
+    <span id="locationPrivacyText" style="font-size: 12px; color: #1e40af; line-height: 1.4;">
+      <b>Biztonsági védelem:</b> A megadott pontos címet és koordinátát kizárólag regisztrált, ellenőrzött állatmentők látják. A nyilvános felületen csak egy hozzávetőleges körzet jelenik meg az állat védelmében.
+    </span>
+  </div>
+
   <p id="eredmeny" style="font-size: 13px; color: #64748b; margin-bottom: 10px; text-align: center;">Válassz a fenti lehetőségek közül!</p>
 
   <div id="mapSearchContainer" style="display: none; gap: 8px; margin-bottom: 10px; align-items: center;">
@@ -388,6 +396,45 @@
     <img id="modalImage" src="" alt="Nagyított kép">
   </div>
   <p class="modal-hint" id="modalHintText">Görgess vagy húzd az ujjad a zoomoláshoz</p>
+</div>
+
+<!-- ================= SEGÍTENI SZERETNÉK MODAL ================= -->
+<div id="helpOfferModal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+  <div class="modal-content" style="background: var(--bg-card, #ffffff); border-radius: 12px; max-width: 420px; width: 100%; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;">
+    <button type="button" id="closeHelpModalBtn" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
+    
+    <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+      🤝 Segíteni szeretnék
+    </h3>
+    <p style="font-size: 12px; color: #64748b; margin-bottom: 14px; line-height: 1.4;">
+      Az állat védelmében a pontos címet csak koordinált mentés során adjuk ki. Kérlek, add meg az elérhetőségedet, és a mentő vagy a bejelentő felveszi veled a kapcsolatot!
+    </p>
+
+    <form id="helpOfferForm" style="display: flex; flex-direction: column; gap: 10px;">
+      <input type="hidden" id="helpTargetReportId">
+      
+      <div>
+        <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Neved *</label>
+        <input type="text" id="helpOfferName" required placeholder="Pl. Kovács Anna" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+      </div>
+
+      <div>
+        <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Telefonszámod *</label>
+        <input type="tel" id="helpOfferPhone" required placeholder="Pl. +36 30 123 4567" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+      </div>
+
+      <div>
+        <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Miben tudsz segíteni? (opcionális)</label>
+        <textarea id="helpOfferMessage" rows="3" placeholder="Pl. Itt lakom a közelben, körbenézek a környéken / Van autóm szállítani..." style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
+      </div>
+
+      <div id="helpOfferError" style="display: none; color: #ef4444; font-size: 12px; font-weight: bold;"></div>
+
+      <button type="submit" id="helpOfferSubmitBtn" class="btn btn-primary" style="margin-top: 6px; padding: 10px; font-size: 13px; font-weight: bold; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer;">
+        Jelentkezés elküldése
+      </button>
+    </form>
+  </div>
 </div>
 
 <script src="script.js?v=2.0.4"></script>
