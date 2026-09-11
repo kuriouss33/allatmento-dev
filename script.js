@@ -368,8 +368,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const imgbbApiKey = "5274f0761f88a38f610c030a7de51e0f"; 
-
 let currentUserId = localStorage.getItem("allatmento_user_id");
 let currentUserProfile = null;
 if (!currentUserId) {
@@ -459,6 +457,13 @@ function getMarkerIconByStatus(statusz) {
 function frissitTerkepMarkerek() {
   if (!markerClusterGroup) return;
   markerClusterGroup.clearLayers();
+
+  // Előző körök eltávolítása a térképről
+  Object.values(activeMarkers).forEach(item => {
+    if (item && item.circle) {
+      mainMap.removeLayer(item.circle);
+    }
+  });
   activeMarkers = {};
 
   const t = translations[currentLang] || translations.hu;
@@ -520,8 +525,8 @@ const reportLat = parseFloat(adat.lat);
                Útvonaltervezés (Pontos hely)
              </a>
            </div>`
-        : `<div style="margin: 6px 0; font-size:11px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:4px; text-align:center;">
-             📍 <i>Hozzávetőleges körzet (~400m). Pontos hely mentőknek.</i>
+          : `<div style="margin: 6px 0; font-size:11px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:4px; text-align:center;">
+             📍 <i>Hozzávetőleges körzet (~100m). Pontos hely mentőknek.</i>
            </div>`;
 
       const popupSegiteniGombHtml = (!canSeeExact && statusz !== 'megoldva')
@@ -548,24 +553,39 @@ const reportLat = parseFloat(adat.lat);
         // Mentőknek: Pontos tű
         const markerIcon = getMarkerIconByStatus(statusz);
         mapLayerElem = L.marker([reportLat, reportLon], { icon: markerIcon }).bindPopup(popupContent);
+        markerClusterGroup.addLayer(mapLayerElem);
+        activeMarkers[id] = mapLayerElem;
       } else {
-        // Látogatóknak: Védett, 450 méteres körzet
+        // Látogatóknak: 150 méteres zóna + központi fókusz mancs ikon
         let circleColor = '#3b82f6';
         if (statusz === 'folyamatban') circleColor = '#f59e0b';
         if (statusz === 'megoldva') circleColor = '#10b981';
 
-        mapLayerElem = L.circle([reportLat, reportLon], {
-          radius: 450,
+        // 1. A 150m-es védett körzet - KÖZVETLENÜL a mainMap-re kerül!
+        const zoneCircle = L.circle([reportLat, reportLon], {
+          radius: 150,
           color: circleColor,
           fillColor: circleColor,
-          fillOpacity: 0.25,
-          weight: 2,
-          dashArray: '4, 4'
-        }).bindPopup(popupContent);
-      }
+          fillOpacity: 0.22,
+          weight: 2.5,
+          dashArray: '6, 6',
+          interactive: true
+        }).addTo(mainMap).bindPopup(popupContent);
 
-      markerClusterGroup.addLayer(mapLayerElem);
-      activeMarkers[id] = mapLayerElem;
+        // 2. Központi mancs ikon - A klaszterbe kerül, így nem ütközik a körrel
+        const centerMarker = L.marker([reportLat, reportLon], {
+          icon: L.divIcon({
+            className: 'fuzzy-center-badge',
+            html: `<div style="background: white; border: 2px solid ${circleColor}; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">🐾</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, -14]
+          })
+        }).bindPopup(popupContent);
+
+        markerClusterGroup.addLayer(centerMarker);
+        activeMarkers[id] = { marker: centerMarker, circle: zoneCircle };
+      }
     }
   });
 }
@@ -970,14 +990,16 @@ window.submitResolve = async function(docId, event) {
       const formData = new FormData();
       formData.append("image", photoFile);
 
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
+      const response = await fetch(`${BACKEND_URL}/upload`, {
         method: "POST",
         body: formData
       });
 
       const result = await response.json();
-      if (result.success) {
-        lezarasFotoUrl = result.data.url;
+      if (result.success && result.url) {
+        lezarasFotoUrl = result.url;
+      } else {
+        throw new Error(result.error || "A lezárási fotó feltöltése sikertelen.");
       }
     }
 
@@ -1125,30 +1147,63 @@ window.deleteReport = async function(docId, event) {
   }
 
   const t = translations[currentLang];
-  const elemek = document.querySelectorAll(`[data-report-id="${docId}"]`);
-  elemek.forEach(elem => elem.remove());
 
   try {
-    await db.collection("bejelentesek").doc(docId).delete();
-    console.log("Dokumentum sikeresen törölve.");
+    const headers = { 'Content-Type': 'application/json' };
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
-    // Törlés a memóriából és térképről
+    // Kizárólag a backend API-t hívjuk meg (a Firestore Admin SDK jogosult törölni)
+    const response = await fetch(`${BACKEND_URL}/reports/${docId}`, {
+      method: 'DELETE',
+      headers: headers,
+      body: JSON.stringify({
+        createrId: user ? user.uid : currentUserId
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'A szerver elutasította a törlést.');
+    }
+
+    // 1. Elemek eltávolítása a felületről
+    const elemek = document.querySelectorAll(`[data-report-id="${docId}"]`);
+    elemek.forEach(elem => elem.remove());
+
+    // 2. Törlés a helyi memóriából és a térképről
     osszesBejelentesMemoria = osszesBejelentesMemoria.filter(item => item.id !== docId);
-    if (activeMarkers[docId] && markerClusterGroup) {
-      markerClusterGroup.removeLayer(activeMarkers[docId]);
+    if (activeMarkers[docId]) {
+      if (activeMarkers[docId].circle && mainMap) {
+        mainMap.removeLayer(activeMarkers[docId].circle);
+      }
+      if (activeMarkers[docId].marker && markerClusterGroup) {
+        markerClusterGroup.removeLayer(activeMarkers[docId].marker);
+      } else if (markerClusterGroup) {
+        markerClusterGroup.removeLayer(activeMarkers[docId]);
+      }
       delete activeMarkers[docId];
     }
 
-    const sajatLista = document.getElementById("sajatUgyekLista");
-    if (sajatLista && sajatLista.children.length === 0) {
-      sajatLista.innerHTML = `<p style="color: #64748b;">${t.noMyCases}</p>`;
+    // 3. Ha az ügy részletei voltak nyitva, lépjünk vissza
+    const stepReszletek = document.getElementById("stepReszletek");
+    if (stepReszletek && stepReszletek.style.display === "block") {
+      const backToListBtn = document.getElementById("backToListBtn");
+      if (backToListBtn) backToListBtn.click();
     }
 
-    // Backend szinkronizáció
-    await betoltBejelentesekSzerverrol();
+    // 4. Saját ügyek lista újrarajzolása
+    betoltSajatUgyek();
+
+    console.log("Bejelentés sikeresen törölve.");
   } catch (error) {
     console.error("Hiba a törlés során:", error);
     alert("Nem sikerült törölni a bejelentést: " + error.message);
+    betoltBejelentesekSzerverrol();
   }
 };
 
@@ -1156,40 +1211,75 @@ let sajatUgyekUnsubscribe = null;
 
 function betoltSajatUgyek() {
   const sajatLista = document.getElementById("sajatUgyekLista");
+  if (!sajatLista) return;
   const t = translations[currentLang];
-  sajatLista.innerHTML = '<p style="color: #64748b;">Betöltés...</p>';
 
-  if (sajatUgyekUnsubscribe) sajatUgyekUnsubscribe();
+  if (sajatUgyekUnsubscribe) {
+    sajatUgyekUnsubscribe();
+    sajatUgyekUnsubscribe = null;
+  }
 
   const user = firebase.auth().currentUser;
   const activeUid = user ? user.uid : currentUserId;
 
-  sajatUgyekUnsubscribe = db.collection("bejelentesek").onSnapshot((snapshot) => {
-    sajatLista.innerHTML = "";
-    let talalat = false;
+  // 1. Azonnali kirajzolás a helyi memóriából (vendégként is azonnal működik)
+  sajatLista.innerHTML = "";
+  let talalat = false;
 
-    snapshot.docs.forEach((doc) => {
-      const adat = doc.data();
-      const id = doc.id;
+  if (osszesBejelentesMemoria && osszesBejelentesMemoria.length > 0) {
+    osszesBejelentesMemoria.forEach((elem) => {
+      const adat = elem.adat;
+      const id = elem.id;
 
-      const isMyCreated = adat.createrId === activeUid || adat.createrId === currentUserId;
-      const isMyTaken = adat.vallaloId === activeUid || adat.rescuerUid === activeUid || adat.vallaloId === currentUserId;
+      const isMyCreated = adat.createrId === activeUid || (currentUserId && adat.createrId === currentUserId);
+      const isMyTaken = Boolean(activeUid && (adat.vallaloId === activeUid || adat.rescuerUid === activeUid));
 
       if (isMyCreated || isMyTaken) {
         talalat = true;
         const szerep = isMyCreated ? t.myCreatedRole : t.myTakenRole;
-        
         sajatLista.innerHTML += `
           <div style="margin-bottom: 4px; font-size:12px; font-weight:bold; color:#8b5cf6; text-align:left;">${szerep}</div>
           ${createReportCardHtml(id, adat)}
         `;
       }
     });
+  }
 
-    if (!talalat) {
-      sajatLista.innerHTML = `<p style="color: #64748b;">${t.noMyCases}</p>`;
-    }
-  });
+  // Ha nem találtunk saját ügyet, azonnal kiírjuk a tájékoztató szöveget
+  if (!talalat) {
+    sajatLista.innerHTML = `<p style="color: #64748b; text-align: center; margin-top: 20px;">${t.noMyCases}</p>`;
+  }
+
+  // 2. Élő Firestore snapshot figyelés kizárólag bejelentkezett felhasználóknak
+  if (user) {
+    sajatUgyekUnsubscribe = db.collection("bejelentesek").onSnapshot((snapshot) => {
+      sajatLista.innerHTML = "";
+      let snapshotTalalat = false;
+
+      snapshot.docs.forEach((doc) => {
+        const adat = doc.data();
+        const id = doc.id;
+
+        const isMyCreated = adat.createrId === activeUid || (currentUserId && adat.createrId === currentUserId);
+        const isMyTaken = Boolean(activeUid && (adat.vallaloId === activeUid || adat.rescuerUid === activeUid));
+
+        if (isMyCreated || isMyTaken) {
+          snapshotTalalat = true;
+          const szerep = isMyCreated ? t.myCreatedRole : t.myTakenRole;
+          sajatLista.innerHTML += `
+            <div style="margin-bottom: 4px; font-size:12px; font-weight:bold; color:#8b5cf6; text-align:left;">${szerep}</div>
+            ${createReportCardHtml(id, adat)}
+          `;
+        }
+      });
+
+      if (!snapshotTalalat) {
+        sajatLista.innerHTML = `<p style="color: #64748b; text-align: center; margin-top: 20px;">${t.noMyCases}</p>`;
+      }
+    }, (err) => {
+      console.warn("Firestore figyelés letiltva saját ügyeknél (jogosultsági szabály).");
+    });
+  }
 }
 
 toggleMapBtn.addEventListener("click", () => {
@@ -1619,163 +1709,166 @@ window.megnyitReszletek = function(docId) {
   const stepReszletek = document.getElementById("stepReszletek");
   if (stepReszletek) stepReszletek.style.display = "block";
 
-  const reszletKartyaBox = document.getElementById("reszletKartyaBox");
-  if (reszletKartyaBox) {
-    reszletKartyaBox.innerHTML = '<p style="color: #64748b; font-size:13px;">Adatok betöltése...</p>';
+  // 1. Azonnali kirajzolás a memóriából (nem blokkolja a Firestore szabály)
+  const taroltElem = osszesBejelentesMemoria.find(item => item.id === docId);
+  if (taroltElem && taroltElem.adat) {
+    kirajzolReszletAdatok(docId, taroltElem.adat);
   }
 
   if (kommentekUnsubscribe) kommentekUnsubscribe();
 
-  kommentekUnsubscribe = db.collection("bejelentesek").doc(docId).onSnapshot((doc) => {
-    if (!doc.exists) return;
-    const adat = doc.data();
+  // 2. Csak bejelentkezett felhasználónál vagy saját ügyél indítunk élő figyelőt
+  const user = firebase.auth().currentUser;
+  if (user) {
+    kommentekUnsubscribe = db.collection("bejelentesek").doc(docId).onSnapshot((doc) => {
+      if (!doc.exists) return;
+      kirajzolReszletAdatok(docId, doc.data());
+    }, (err) => {
+      console.warn("Firestore snapshot figyelés nem engedélyezett (nyilvános nézet). Memória adatok érvényesek.");
+    });
+  }
+};
 
-    const fajtaEl = document.getElementById("reszletFajta");
-    if (fajtaEl) fajtaEl.innerText = adat.fajta || adat.allatFajta || "Állatmentés";
+// Külön segédfüggvény a részletek és kommentek azonnali kirajzolásához
+function kirajzolReszletAdatok(docId, adat) {
+  const fajtaEl = document.getElementById("reszletFajta");
+  if (fajtaEl) fajtaEl.innerText = adat.fajta || adat.allatFajta || "Állatmentés";
 
-    const t = translations[currentLang];
-    let terkepLinkSzoveg = t.openMapLink;
-    if (adat.cim) {
-      terkepLinkSzoveg = escapeHtml(adat.cim);
-    } else if (adat.megye && adat.megye !== "Ismeretlen") {
-      terkepLinkSzoveg = escapeHtml(adat.megye);
+  const t = translations[currentLang];
+  let terkepLinkSzoveg = adat.cim ? escapeHtml(adat.cim) : (adat.megye && adat.megye !== "Ismeretlen" ? escapeHtml(adat.megye) : t.openMapLink);
+
+  const rLat = adat.lat;
+  const rLon = adat.lon || adat.lng;
+
+  const isVerifiedRescuer = currentUserProfile && 
+    (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
+  const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
+  const canSeeExact = isVerifiedRescuer || isCreator || adat.isExactLocation;
+  const nyersTelefon = adat.telefon || adat.bejelentoTelefon;
+  const vanTelefon = Boolean(adat.hasPhone || nyersTelefon);
+
+  let telefonReszletHtml = 'Nincs megadva';
+  if (vanTelefon) {
+    if (canSeeExact && nyersTelefon) {
+      telefonReszletHtml = `<a href="tel:${escapeHtml(nyersTelefon)}" style="color:#10b981; font-weight:bold;">${escapeHtml(nyersTelefon)}</a>`;
+    } else {
+      telefonReszletHtml = '🔒 <i>Csak bejelentkezett mentők láthatják</i>';
     }
+  }
 
-    const rLat = adat.lat;
-    const rLon = adat.lon || adat.lng;
-    const terKepGombHtml = (rLat && rLon)
-      ? `<a href="https://www.google.com/maps?q=${rLat},${rLon}" target="_blank" onclick="event.stopPropagation();" style="font-size:12px; color:#2563eb; text-decoration:underline; display:inline-block; width: fit-content; margin-top:4px; font-weight: 500;">${terkepLinkSzoveg}</a>`
-      : '';
-
-const isVerifiedRescuer = currentUserProfile && 
-      (currentUserProfile.role === 'verified_rescuer' || currentUserProfile.role === 'super_admin');
-    const isCreator = (adat.createrId === currentUserId) || (firebase.auth().currentUser && adat.createrId === firebase.auth().currentUser.uid);
-    const canSeeExact = isVerifiedRescuer || isCreator || adat.isExactLocation;
-    const nyersTelefon = adat.telefon || adat.bejelentoTelefon;
-    const vanTelefon = Boolean(adat.hasPhone || nyersTelefon);
-
-    let telefonReszletHtml = 'Nincs megadva';
-    if (vanTelefon) {
-      if (canSeeExact && nyersTelefon) {
-        telefonReszletHtml = `<a href="tel:${escapeHtml(nyersTelefon)}" style="color:#10b981; font-weight:bold;">${escapeHtml(nyersTelefon)}</a>`;
-      } else {
-        telefonReszletHtml = '🔒 <i>Csak bejelentkezett mentők láthatják</i>';
-      }
+  let reszletHelyszinHtml = '';
+  if (rLat && rLon) {
+    if (canSeeExact) {
+      reszletHelyszinHtml = `<a href="https://www.google.com/maps?q=${rLat},${rLon}" target="_blank" onclick="event.stopPropagation();" style="font-size:12px; color:#2563eb; text-decoration:underline; display:inline-block; width: fit-content; margin-top:4px; font-weight: 500;">📍 ${terkepLinkSzoveg}</a>`;
+    } else {
+      reszletHelyszinHtml = `<span style="font-size:12px; color:#64748b; display:inline-block; margin-top:4px;">📍 <b>Körzet:</b> ${terkepLinkSzoveg} <i style="font-size:11px;">(Pontos cím csak mentőknek)</i></span>`;
     }
+  }
 
-    let reszletHelyszinHtml = '';
-    if (rLat && rLon) {
-      if (canSeeExact) {
-        reszletHelyszinHtml = `<a href="https://www.google.com/maps?q=${rLat},${rLon}" target="_blank" onclick="event.stopPropagation();" style="font-size:12px; color:#2563eb; text-decoration:underline; display:inline-block; width: fit-content; margin-top:4px; font-weight: 500;">📍 ${terkepLinkSzoveg}</a>`;
-      } else {
-        reszletHelyszinHtml = `<span style="font-size:12px; color:#64748b; display:inline-block; margin-top:4px;">📍 <b>Körzet:</b> ${terkepLinkSzoveg} <i style="font-size:11px;">(Pontos cím csak mentőknek)</i></span>`;
-      }
-    }
+  const isSuperAdmin = currentUserProfile && currentUserProfile.role === 'super_admin';
+  const canDeleteReszlet = isCreator || isSuperAdmin;
+  const reszletTorlesHtml = canDeleteReszlet
+    ? `<div class="delete-box-container" style="margin-top:8px;">
+         <button type="button" class="report-action-btn btn-delete" onclick="showDeleteConfirm('${docId}', event)">${t.deleteBtn}</button>
+       </div>`
+    : '';
 
-    const isSuperAdmin = currentUserProfile && currentUserProfile.role === 'super_admin';
-    const canDeleteReszlet = isCreator || isSuperAdmin;
-    const reszletTorlesHtml = canDeleteReszlet
-      ? `<div class="delete-box-container" style="margin-top:8px;">
-           <button type="button" class="report-action-btn btn-delete" onclick="showDeleteConfirm('${docId}', event)">${t.deleteBtn}</button>
-         </div>`
-      : '';
+  const reszletKartyaBox = document.getElementById("reszletKartyaBox");
+  if (reszletKartyaBox) {
+    reszletKartyaBox.innerHTML = `
+      <div class="reszlet-info-box">
+        <p style="margin: 0 0 4px 0;"><b>Leírás:</b> ${escapeHtml(adat.megjegyzes || adat.helyszinLeiras) || 'Nincs megjegyzés'}</p>
+        <p style="margin: 0;"><b>Telefon:</b> ${telefonReszletHtml}</p>
+        ${reszletHelyszinHtml}
+        ${reszletTorlesHtml}
+      </div>
+    `;
+  }
 
-    if (reszletKartyaBox) {
-      reszletKartyaBox.innerHTML = `
-        <div class="reszlet-info-box">
-          <p style="margin: 0 0 4px 0;"><b>Leírás:</b> ${escapeHtml(adat.megjegyzes || adat.helyszinLeiras) || 'Nincs megjegyzés'}</p>
-          <p style="margin: 0;"><b>Telefon:</b> ${telefonReszletHtml}</p>
-          ${reszletHelyszinHtml}
-          ${reszletTorlesHtml}
-        </div>
-      `;
-    }
+  const kommentek = adat.kommentek || [];
+  const listaDiv = document.getElementById("reszletKommentekLista");
+  if (listaDiv) {
+    listaDiv.innerHTML = "";
 
-    const kommentek = adat.kommentek || [];
-    const listaDiv = document.getElementById("reszletKommentekLista");
-    if (listaDiv) {
-      listaDiv.innerHTML = "";
-
-      if (kommentek.length === 0) {
-        listaDiv.innerHTML = `<p style="color: #64748b; text-align: center; font-size: 13px;">Még nincsenek üzenetek.</p>`;
-      } else {
-        const user = firebase.auth().currentUser;
-        const activeUid = user ? user.uid : currentUserId;
-
-        kommentek.forEach(k => {
-          const isSajat = k.userId === activeUid || k.userId === currentUserId;
-          const isBejelento = k.userId === adat.createrId;
-          const isVallo = k.userId === adat.vallaloId || k.userId === adat.rescuerUid;
-
-          let szerepNev = "Érdeklődő";
-          let szerepClass = "erdoklodo";
-
-          if (isBejelento) {
-            szerepNev = "Bejelentő";
-            szerepClass = "bejelento";
-          } else if (isVallo) {
-            szerepNev = "Mentő";
-            szerepClass = "mento";
-          }
-
-          if (isSajat) szerepNev += " (Én)";
-
-          const buborekClass = `komment-buborek ${szerepClass} ${isSajat ? 'sajat' : ''}`;
-
-          let idoStr = "";
-          if (k.idopont && k.idopont.toDate) {
-            idoStr = k.idopont.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          } else if (k.idopont) {
-            idoStr = new Date(k.idopont).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          }
-
-          listaDiv.innerHTML += `
-            <div class="${buborekClass}">
-              <div class="komment-szerep-label">${szerepNev}</div>
-              <div class="komment-szoveg">${escapeHtml(k.szoveg)}</div>
-              <div class="komment-buborek-idopont">${idoStr}</div>
-            </div>
-          `;
-        });
-        listaDiv.scrollTop = listaDiv.scrollHeight;
-      }
-    }
-
-    const chatInputKontener = document.getElementById("chatInputKontener");
-    if (chatInputKontener) {
+    if (kommentek.length === 0) {
+      listaDiv.innerHTML = `<p style="color: #64748b; text-align: center; font-size: 13px;">Még nincsenek üzenetek.</p>`;
+    } else {
       const user = firebase.auth().currentUser;
       const activeUid = user ? user.uid : currentUserId;
-      const isErintett = (activeUid === adat.createrId) || (activeUid === adat.vallaloId) || (activeUid === adat.rescuerUid);
 
-      if (!adat.vallaloId && !adat.rescuerUid) {
-        chatInputKontener.innerHTML = `
-          <div class="chat-disabled-hint">
-            A közvetlen chat akkor nyílik meg, ha valaki elvállalja a mentést.
-          </div>`;
-      } else if (!isErintett) {
-        chatInputKontener.innerHTML = `
-          <div class="chat-disabled-hint">
-            A chat kizárólag a bejelentő és az elvállaló mentő számára elérhető.
-          </div>`;
-      } else {
-        chatInputKontener.innerHTML = `
-          <div style="display: flex; gap: 8px; width: 100%;">
-            <input type="text" id="ujKommentInput" placeholder="Üzenet küldése..." style="flex: 1; margin: 0; padding: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
-            <button type="button" id="kuldKommentBtn" class="btn btn-primary" style="width: auto; padding: 10px 16px; margin: 0;">Küldés</button>
-          </div>`;
+      kommentek.forEach(k => {
+        const isSajat = k.userId === activeUid || k.userId === currentUserId;
+        const isBejelento = k.userId === adat.createrId;
+        const isVallo = k.userId === adat.vallaloId || k.userId === adat.rescuerUid;
 
-        const btn = document.getElementById("kuldKommentBtn");
-        const inp = document.getElementById("ujKommentInput");
-        if (btn) btn.addEventListener("click", kuldKommentFuggveny);
-        if (inp) {
-          inp.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") kuldKommentFuggveny();
-          });
+        let szerepNev = "Érdeklődő";
+        let szerepClass = "erdoklodo";
+
+        if (isBejelento) {
+          szerepNev = "Bejelentő";
+          szerepClass = "bejelento";
+        } else if (isVallo) {
+          szerepNev = "Mentő";
+          szerepClass = "mento";
         }
+
+        if (isSajat) szerepNev += " (Én)";
+
+        const buborekClass = `komment-buborek ${szerepClass} ${isSajat ? 'sajat' : ''}`;
+
+        let idoStr = "";
+        if (k.idopont && k.idopont.toDate) {
+          idoStr = k.idopont.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (k.idopont) {
+          idoStr = new Date(k.idopont).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        listaDiv.innerHTML += `
+          <div class="${buborekClass}">
+            <div class="komment-szerep-label">${szerepNev}</div>
+            <div class="komment-szoveg">${escapeHtml(k.szoveg)}</div>
+            <div class="komment-buborek-idopont">${idoStr}</div>
+          </div>
+        `;
+      });
+      listaDiv.scrollTop = listaDiv.scrollHeight;
+    }
+  }
+
+  const chatInputKontener = document.getElementById("chatInputKontener");
+  if (chatInputKontener) {
+    const user = firebase.auth().currentUser;
+    const activeUid = user ? user.uid : currentUserId;
+    const isErintett = (activeUid === adat.createrId) || (activeUid === adat.vallaloId) || (activeUid === adat.rescuerUid);
+
+    if (!adat.vallaloId && !adat.rescuerUid) {
+      chatInputKontener.innerHTML = `
+        <div class="chat-disabled-hint">
+          A közvetlen chat akkor nyílik meg, ha valaki elvállalja a mentést.
+        </div>`;
+    } else if (!isErintett) {
+      chatInputKontener.innerHTML = `
+        <div class="chat-disabled-hint">
+          A chat kizárólag a bejelentő és az elvállaló mentő számára elérhető.
+        </div>`;
+    } else {
+      chatInputKontener.innerHTML = `
+        <div style="display: flex; gap: 8px; width: 100%;">
+          <input type="text" id="ujKommentInput" placeholder="Üzenet küldése..." style="flex: 1; margin: 0; padding: 10px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px;">
+          <button type="button" id="kuldKommentBtn" class="btn btn-primary" style="width: auto; padding: 10px 16px; margin: 0;">Küldés</button>
+        </div>`;
+
+      const btn = document.getElementById("kuldKommentBtn");
+      const inp = document.getElementById("ujKommentInput");
+      if (btn) btn.addEventListener("click", kuldKommentFuggveny);
+      if (inp) {
+        inp.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") kuldKommentFuggveny();
+        });
       }
     }
-  });
-};
+  }
+}
 
 const backToListBtn = document.getElementById("backToListBtn");
 if (backToListBtn) {
@@ -1910,16 +2003,25 @@ async function ujBejelentesKuldése() {
     let mentettCim = "";
     if (pontosLat && pontosLon) {
       try {
-        const geoResp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pontosLat}&lon=${pontosLon}`);
+        const geoResp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pontosLat}&lon=${pontosLon}&addressdetails=1`);
         const geoData = await geoResp.json();
         if (geoData && geoData.address) {
           const addr = geoData.address;
           mentettMegye = addr.county || addr.state || addr.city || addr.town || "Ismeretlen";
           mentettMegye = mentettMegye.replace(" vármegye", "").replace(" megye", "").trim();
           
-          const utca = addr.road || addr.pedestrian || addr.suburb || "";
-          const varos = addr.city || addr.town || addr.village || "";
-          mentettCim = utca ? `${varos}, ${utca}` : varos;
+          const varos = addr.city || addr.town || addr.village || addr.municipality || "Budapest";
+          const kerulet = addr.city_district || addr.suburb || "";
+          const utca = addr.road || addr.pedestrian || addr.footway || addr.path || addr.residential || "";
+          const hazszam = addr.house_number ? ` ${addr.house_number}.` : "";
+
+          if (utca) {
+            mentettCim = `${varos}${kerulet ? ` (${kerulet})` : ''}, ${utca}${hazszam}`;
+          } else if (kerulet) {
+            mentettCim = `${varos}, ${kerulet}`;
+          } else {
+            mentettCim = geoData.display_name ? geoData.display_name.split(',').slice(0, 2).join(',') : varos;
+          }
         }
       } catch (e) {
         console.log("Cím felismerési hiba:", e);
