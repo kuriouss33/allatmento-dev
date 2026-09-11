@@ -1704,8 +1704,6 @@ window.megnyitReszletek = function(docId) {
     elozoKepernyoId = "stepMap";
   }
 
-  stepMap.style.display = "none";
-  stepSajat.style.display = "none";
   const stepReszletek = document.getElementById("stepReszletek");
   if (stepReszletek) stepReszletek.style.display = "block";
 
@@ -1879,11 +1877,15 @@ if (backToListBtn) {
     }
     const stepReszletek = document.getElementById("stepReszletek");
     if (stepReszletek) stepReszletek.style.display = "none";
+  });
+}
 
-    if (elozoKepernyoId === "stepSajat") {
-      stepSajat.style.display = "block";
-    } else {
-      stepMap.style.display = "block";
+// Opcionális: Ha a sötét háttérre kattint, akkor is záródjon be
+const stepReszletek = document.getElementById("stepReszletek");
+if (stepReszletek) {
+  stepReszletek.addEventListener("click", (e) => {
+    if (e.target === stepReszletek) {
+      if (backToListBtn) backToListBtn.click();
     }
   });
 }

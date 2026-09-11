@@ -173,28 +173,30 @@
   <button class="backToMenuBtn btn btn-outline" style="margin-top: 15px;">← Vissza a főmenübe</button>
 </div>
 
-<!-- ================= ÚJ KÉPERNYŐ: ÜZENETEK & RÉSZLETEK ================= -->
-<div class="container" id="stepReszletek" style="display: none;">
-  <div class="step-header">
-    <span class="step-badge" id="reszletBadge">🐾 Ügy részletei</span>
-    <h2 id="reszletFajta">Állat adatai</h2>
-    <p id="reszletSub">Kommunikáció a megtaláló és a mentők között</p>
-  </div>
-
-  <div class="step-content" style="text-align: left; display: flex; flex-direction: column; gap: 10px;">
-    <div id="reszletKartyaBox"></div>
-
-    <h3 style="font-size: 14px; margin: 10px 0 0 0; color: var(--text-main);">💬 Üzenetek & Kommentek</h3>
-    
-    <div id="reszletKommentekLista" style="flex: 1; overflow-y: auto; max-height: 340px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px;">
-      <p style="color: #64748b; text-align: center; font-size: 13px;">Még nincsenek üzenetek. Írj az elsőt!</p>
+<!-- ================= ÜZENETEK & RÉSZLETEK MODAL ================= -->
+<div id="stepReszletek" style="display: none;">
+  <div class="modal-inner-card">
+    <div class="step-header">
+      <span class="step-badge" id="reszletBadge">🐾 Ügy részletei</span>
+      <h2 id="reszletFajta">Állat adatai</h2>
+      <p id="reszletSub">Kommunikáció a megtaláló és a mentők között</p>
     </div>
 
-    <div id="chatInputKontener" style="margin-top: 5px;"></div>
-  </div>
+    <div class="step-content" style="text-align: left; display: flex; flex-direction: column; gap: 10px; overflow-y: auto;">
+      <div id="reszletKartyaBox"></div>
 
-  <div class="step-footer">
-    <button id="backToListBtn" class="btn btn-outline" type="button" style="margin-top: 15px;">← Vissza az ügyekhez</button>
+      <h3 style="font-size: 14px; margin: 10px 0 0 0; color: var(--text-main);">💬 Üzenetek & Kommentek</h3>
+      
+      <div id="reszletKommentekLista" style="flex: 1; overflow-y: auto; max-height: 260px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px;">
+        <p style="color: #64748b; text-align: center; font-size: 13px;">Még nincsenek üzenetek. Írj az elsőt!</p>
+      </div>
+
+      <div id="chatInputKontener" style="margin-top: 5px;"></div>
+    </div>
+
+    <div class="step-footer">
+      <button id="backToListBtn" class="btn btn-outline" type="button" style="margin-top: 12px;">Bezárás ✕</button>
+    </div>
   </div>
 </div>
   
