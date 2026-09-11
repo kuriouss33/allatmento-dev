@@ -1442,3 +1442,8 @@ textarea { resize: vertical; min-height: 150px; }
   background: #1e293b !important;
   border-color: #334155 !important;
 }
+
+/* Az Auth felugró ablak mindig legyen az ügykártya felett */
+#authModal {
+  z-index: 100000 !important;
+}
