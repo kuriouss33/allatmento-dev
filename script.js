@@ -2201,24 +2201,35 @@ if (authForm) {
 
     try {
       if (isRegisterMode) {
-        await firebase.auth().createUserWithEmailAndPassword(email, password);
+        // 1. Felhasználó létrehozása a Firebase Auth-ban
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const newUser = userCredential.user;
 
-        const sendRes = await fetch(`${BACKEND_URL}/auth/send-verification`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email: email })
-        });
-
-        const sendData = await sendRes.json();
-        if (!sendRes.ok || !sendData.success) {
-          throw new Error(sendData.error || 'A megerősítő e-mail elküldése sikertelen.');
+        // 2. Profil rögzítése a backend Admin SDK segítségével (jogosultsági hiba elkerülése)
+        try {
+          await fetch(`${BACKEND_URL}/auth/register-profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              uid: newUser.uid,
+              email: email
+            })
+          });
+        } catch (profileErr) {
+          console.warn("Nem sikerült rögzíteni a profilt a backend segítségével:", profileErr);
         }
 
+        // 3. Megerősítő e-mail küldése Firebase natív küldővel
+        try {
+          await newUser.sendEmailVerification();
+        } catch (mailErr) {
+          console.warn("Nem sikerült elküldeni az e-mailt a Firebase-zel:", mailErr);
+        }
+
+        // 4. Kijelentkeztetés
         await firebase.auth().signOut();
 
-        alert('Sikeres regisztráció! Küldtünk egy megerősítő linket az e-mail címedre. Kérlek, kattints rá a fiókod aktiválásához!');
+        alert('Sikeres regisztráció! Küldtünk egy megerősítő linket az e-mail címedre. Kattints rá a fiókod aktiválásához, ezt követően a rendszergazda jóváhagyhatja a mentői jogosultságodat.');
         authModal.style.display = 'none';
         authForm.reset();
       } else {
